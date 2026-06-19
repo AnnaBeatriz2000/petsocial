@@ -1,0 +1,28 @@
+/ ==========================
+// LOGIN
+// ==========================
+function login(){
+  const nome = document.getElementById("nomeUser").value.trim()
+  const tipo = document.getElementById("userTipo").value
+  if(!nome) return alert("Informe seu nome")
+ 
+  usuario = { id: Date.now(), nome, tipo }
+  iniciar()
+}
+ 
+function loginAdmin(){
+  usuario = { id: 1, nome: "Admin", tipo: "admin" }
+  isAdmin = true
+  iniciar()
+}
+ 
+function iniciar(){
+  document.getElementById("loginBox").style.display = "none"
+  document.getElementById("app").style.display = "block"
+  document.getElementById("filtroBox").classList.remove("hidden")
+ 
+  carregar()
+}
+ 
+function logout(){ location.reload() }
+ 
