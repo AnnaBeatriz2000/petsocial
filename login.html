@@ -1,0 +1,296 @@
+<div class="col-span-6">
+ 
+  <div id="loginBox" class="bg-white p-5 rounded-xl shadow border">
+<h3 class="font-bold text-slate-700 mb-3 text-sm">Selecione seu modo de acesso</h3>
+<input id="nomeUser" placeholder="Seu nome" class="input mb-2">
+<select id="userTipo" class="select mb-3">
+<option value="adotante">Quero Adotar um Pet 🏠</option>
+<option value="tutor">Sou Tutor / Cadastrar Pet 📢</option>
+</select>
+ 
+    <button onclick="login()" class="bg-pink-500 hover:bg-pink-600 font-bold text-white w-full p-2 rounded transition-colors text-sm">
+      Entrar no App
+</button>
+ 
+    <button onclick="loginAdmin()" class="bg-black hover:bg-zinc-800 font-bold text-white w-full p-2 mt-2 rounded transition-colors text-xs">
+      Modo Admin Geral
+</button>
+</div>
+ 
+  <div id="app" class="hidden">
+ 
+    <div class="bg-white p-3 rounded-xl shadow border flex gap-3 overflow-x-auto" id="stories"></div>
+ 
+    <div id="cadastroPetBox" class="bg-white p-4 rounded-xl shadow border mb-4">
+<h3 class="font-bold text-slate-700 text-xs uppercase mb-2">Anunciar Pet / Publicar Story</h3>
+<input id="nome" placeholder="Nome do pet" class="input mb-2">
+<input id="desc" placeholder="Descrição do pet para adoção..." class="input mb-2">
+<div class="grid grid-cols-2 gap-2 mb-2">
+<select id="idadePet" class="select">
+<option value="Filhote">Filhote</option>
+<option value="Adulto">Adulto</option>
+</select>
+<select id="portePet" class="select">
+<option value="Pequeno">Porte Pequeno</option>
+<option value="Médio">Porte Médio</option>
+</select>
+</div>
+ 
+      <input type="file" id="img" class="text-xs text-slate-500 w-full mb-1">
+ 
+      <div class="flex gap-2">
+<button onclick="criarPost()" class="bg-pink-500 text-white font-bold p-2 flex-1 rounded text-sm mt-2">Postar no Feed</button>
+<button onclick="criarStory()" class="bg-purple-500 text-white font-bold p-2 flex-1 rounded text-sm mt-2">Publicar Story</button>
+</div>
+</div>
+ 
+    <div id="feed" class="space-y-4"></div>
+ 
+  </div>
+ 
+</div>
+ 
+<div class="col-span-3">
+<div class="bg-white p-4 rounded-xl shadow border sticky top-6">
+<h3 id="tituloChat" class="font-bold text-slate-700 text-sm mb-3">💬 Mensagens de Adoção</h3>
+<div id="chat" class="space-y-3 max-h-[75vh] overflow-y-auto pr-1 text-xs text-slate-500">
+      Faça login para abrir canais de mensagens.
+</div>
+</div>
+</div>
+ 
+</div>
+
+<script>
+const state = {
+  user: null,
+  tipo: null,
+  posts: [],
+  stories: [],
+  idadeFiltro: 'Todos',
+  porteFiltro: 'Todos'
+};
+
+const sidebar = document.getElementById('sidebar');
+const perfilBox = document.getElementById('perfilBox');
+const filtroBox = document.getElementById('filtroBox');
+const adminPanel = document.getElementById('adminPanel');
+const loginBox = document.getElementById('loginBox');
+const appBox = document.getElementById('app');
+const info = document.getElementById('info');
+const btnLogout = document.getElementById('btnLogout');
+const perfilNome = document.getElementById('perfilNome');
+const perfilBio = document.getElementById('perfilBio');
+const perfilFoto = document.getElementById('perfilFoto');
+const storiesEl = document.getElementById('stories');
+const feedEl = document.getElementById('feed');
+const chatEl = document.getElementById('chat');
+const tituloChat = document.getElementById('tituloChat');
+const mPosts = document.getElementById('mPosts');
+const mChats = document.getElementById('mChats');
+const mUsers = document.getElementById('mUsers');
+
+function toggleSidebar() {
+  sidebar.classList.toggle('-translate-x-full');
+}
+
+function togglePerfil() {
+  perfilBox.classList.toggle('hidden');
+}
+
+function scrollFeed() {
+  document.getElementById('feed').scrollIntoView({ behavior: 'smooth' });
+}
+
+function abrirChat() {
+  if (!state.user) {
+    chatEl.innerHTML = '<p class="text-slate-500 text-xs">Faça login para abrir canais de mensagens.</p>';
+    return;
+  }
+  tituloChat.textContent = '💬 Mensagens de Adoção';
+  chatEl.innerHTML = `
+    <div class="bg-slate-100 rounded-xl p-3 text-sm text-slate-700">
+      Olá ${state.user}! Este é seu canal de mensagens. Use o feed para começar a conectar com pets e tutores.
+    </div>
+  `;
+  mChats.textContent = state.posts.length ? state.posts.length : 1;
+}
+
+function toggleFiltros() {
+  filtroBox.classList.toggle('hidden');
+}
+
+function login() {
+  const nome = document.getElementById('nomeUser').value.trim();
+  const tipo = document.getElementById('userTipo').value;
+  if (!nome) {
+    alert('Por favor, informe seu nome para continuar.');
+    return;
+  }
+  state.user = nome;
+  state.tipo = tipo;
+  loginBox.classList.add('hidden');
+  appBox.classList.remove('hidden');
+  btnLogout.classList.remove('hidden');
+  info.textContent = `Bem-vindo(a), ${nome}! Você está conectado como ${tipo === 'tutor' ? 'Tutor' : 'Adotante'}.`;
+  perfilNome.textContent = nome;
+  perfilBio.textContent = tipo === 'tutor' ? 'Tutor de pets. Pronto para novas conexões!' : 'Adotante apaixonado por pets.';
+  adminPanel.classList.add('hidden');
+  renderStories();
+  renderFeed();
+  abrirChat();
+  updateCounts();
+}
+
+function loginAdmin() {
+  const nome = document.getElementById('nomeUser').value.trim() || 'Admin';
+  state.user = nome;
+  state.tipo = 'admin';
+  loginBox.classList.add('hidden');
+  appBox.classList.remove('hidden');
+  adminPanel.classList.remove('hidden');
+  btnLogout.classList.remove('hidden');
+  info.textContent = `Modo Admin ativo: ${nome}`;
+  perfilNome.textContent = nome;
+  perfilBio.textContent = 'Administrador do PetSocial.';
+  renderStories();
+  renderFeed();
+  abrirChat();
+  updateCounts();
+}
+
+function logout() {
+  state.user = null;
+  state.tipo = null;
+  state.posts = [];
+  state.stories = [];
+  state.idadeFiltro = 'Todos';
+  state.porteFiltro = 'Todos';
+  loginBox.classList.remove('hidden');
+  appBox.classList.add('hidden');
+  adminPanel.classList.add('hidden');
+  perfilBox.classList.add('hidden');
+  filtroBox.classList.add('hidden');
+  btnLogout.classList.add('hidden');
+  info.textContent = 'Aguardando login...';
+  feedEl.innerHTML = '';
+  storiesEl.innerHTML = '';
+  chatEl.innerHTML = 'Faça login para abrir canais de mensagens.';
+  tituloChat.textContent = '💬 Mensagens de Adoção';
+  setFiltroIdade('Todos');
+  setFiltroPorte('Todos');
+  updateCounts();
+}
+
+function salvarFotoPerfil() {
+  const file = document.getElementById('fotoPerfilInput').files[0];
+  if (!file) {
+    alert('Selecione uma imagem antes de atualizar.');
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  perfilFoto.src = url;
+}
+
+function setFiltroIdade(valor) {
+  state.idadeFiltro = valor;
+  document.querySelectorAll('[id^="fIdade-"]').forEach(btn => btn.classList.toggle('ativo', btn.id === `fIdade-${valor}`));
+  renderFeed();
+}
+
+function setFiltroPorte(valor) {
+  state.porteFiltro = valor;
+  document.querySelectorAll('[id^="fPorte-"]').forEach(btn => btn.classList.toggle('ativo', btn.id === `fPorte-${valor}`));
+  renderFeed();
+}
+
+function updateCounts() {
+  mPosts.textContent = state.posts.length;
+  mChats.textContent = state.posts.length ? state.posts.length : 0;
+  mUsers.textContent = state.user ? 1 : 0;
+}
+
+function criarPost() {
+  if (!state.user) {
+    alert('Faça login para criar um post.');
+    return;
+  }
+  const nomePet = document.getElementById('nome').value.trim();
+  const desc = document.getElementById('desc').value.trim();
+  const idade = document.getElementById('idadePet').value;
+  const porte = document.getElementById('portePet').value;
+  const file = document.getElementById('img').files[0];
+
+  if (!nomePet || !desc) {
+    alert('Preencha o nome e a descrição do pet.');
+    return;
+  }
+  const image = file ? URL.createObjectURL(file) : `https://placekitten.com/400/250`;
+  state.posts.unshift({ nomePet, desc, idade, porte, image, autor: state.user });
+  renderFeed();
+  updateCounts();
+  document.getElementById('nome').value = '';
+  document.getElementById('desc').value = '';
+  document.getElementById('img').value = '';
+}
+
+function criarStory() {
+  if (!state.user) {
+    alert('Faça login para publicar uma story.');
+    return;
+  }
+  const nomePet = document.getElementById('nome').value.trim() || state.user;
+  const file = document.getElementById('img').files[0];
+  const image = file ? URL.createObjectURL(file) : `https://placekitten.com/70/70`;
+  state.stories.unshift({ nome: nomePet, image });
+  renderStories();
+}
+
+function renderStories() {
+  storiesEl.innerHTML = '';
+  if (!state.stories.length) {
+    storiesEl.innerHTML = '<p class="text-slate-500 text-xs">Publique uma story para aparecer aqui.</p>';
+    return;
+  }
+  state.stories.forEach(story => {
+    const item = document.createElement('div');
+    item.className = 'story';
+    item.title = story.nome;
+    item.innerHTML = `<img src="${story.image}" alt="${story.nome}" class="w-full h-full object-cover">`;
+    storiesEl.appendChild(item);
+  });
+}
+
+function renderFeed() {
+  feedEl.innerHTML = '';
+  const filtered = state.posts.filter(post => {
+    const idadeOk = state.idadeFiltro === 'Todos' || post.idade === state.idadeFiltro;
+    const porteOk = state.porteFiltro === 'Todos' || post.porte === state.porteFiltro;
+    return idadeOk && porteOk;
+  });
+  if (!filtered.length) {
+    feedEl.innerHTML = '<div class="bg-white p-4 rounded-xl shadow border text-slate-500">Nenhum post encontrado. Crie o primeiro pet para adoção!</div>';
+    return;
+  }
+  filtered.forEach(post => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-xl shadow border overflow-hidden fade-in';
+    card.innerHTML = `
+      <img src="${post.image}" alt="${post.nomePet}" class="w-full h-44 object-cover">
+      <div class="p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="font-bold text-slate-700">${post.nomePet}</h4>
+          <span class="text-[11px] text-slate-500 uppercase tracking-[.2em]">${post.idade} • ${post.porte}</span>
+        </div>
+        <p class="text-sm text-slate-600 mb-3">${post.desc}</p>
+        <p class="text-[11px] text-slate-400">Publicado por ${post.autor}</p>
+      </div>
+    `;
+    feedEl.appendChild(card);
+  });
+}
+
+logout();
+</script>
+</body>
+</html>
