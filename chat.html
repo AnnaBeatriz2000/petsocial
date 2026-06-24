@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetSocial Chat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100">
+
+<div class="max-w-4xl mx-auto p-6">
+  <h1 class="text-2xl font-bold text-pink-500 mb-4">PetSocial Chat</h1>
+  <div id="chat" class="space-y-3 max-h-[75vh] overflow-y-auto pr-1 text-xs text-slate-500 bg-white p-4 rounded-xl shadow border">
+    Ainda não há mensagens.
+  </div>
+</div>
+
+<script>
+// ==========================
+// RENDER CHAT
+// ==========================
+function renderChats(){
+  const el = document.getElementById("chat")
+
+  let html = ""
+
+  chats.forEach(c => {
+    html += `<div class="mb-2">`
+
+    c.mensagens.forEach(m => {
+      html += `<p><b>${m.remetente}:</b> ${m.texto}</p>`
+    })
+
+    html += `
+      <input id="msg-${c.id}" class="border p-1 text-xs">
+      <button onclick="responder(${c.id})">Enviar</button>
+    </div>`
+  })
+
+  el.innerHTML = html
+  el.scrollTop = el.scrollHeight
+}
+
+// ==========================
+// RESPONDER
+// ==========================
+async function responder(id){
+  const input = document.getElementById(`msg-${id}`)
+  const txt = input.value.trim()
+
+  if(!txt) return
+
+  const c = chats.find(x => x.id === id)
+
+  c.mensagens.push({
+    remetente: usuario.nome,
+    texto: txt
+  })
+
+  input.value = ""
+
+  await salvar()
+  renderChats()
+}
+
+// ==========================
+// RESET SEGURO
+// ==========================
+async function resetar(){
+  const conf = prompt("Digite RESETAR para apagar tudo")
+
+  if(conf === "RESETAR"){
+    posts = []
+    stories = []
+    chats = []
+    await salvar()
+    render()
+  }
+}
+
+// ==========================
+function render(){
+  renderFeed()
+  renderChats()
+}
+
+setInterval(() => {
+  if(usuario) carregar()
+}, 10000)
+function toggleSidebar(){
+  const sidebar = document.getElementById("sidebar")
+  sidebar.classList.toggle("-translate-x-full")
+}
+
+// funções extras opcionais
+function scrollFeed(){
+  document.getElementById("feed").scrollIntoView({ behavior: "smooth" })
+  toggleSidebar()
+}
+
+function abrirChat(){
+  document.getElementById("chat").scrollIntoView({ behavior: "smooth" })
+  toggleSidebar()
+}
+
+function toggleFiltros(){
+  document.getElementById("filtroBox").classList.toggle("hidden")
+  toggleSidebar()
+}
+
+function togglePerfil(){
+  document.getElementById("perfilBox").classList.toggle("hidden")
+  toggleSidebar()
+}
+
+async function salvarFotoPerfil(){
+  const input = document.getElementById("fotoPerfilInput")
+  const file = input.files[0]
+
+  if(!file) return alert("Escolha uma imagem")
+
+  const reader = new FileReader()
+
+  reader.onload = async e => {
+    usuario.foto = e.target.result
+    document.getElementById("perfilFoto").src = usuario.foto
+
+    // atualiza os posts do usuário
+    posts.forEach(p => {
+      if(p.tutorId === usuario.id){
+        p.tutorFoto = usuario.foto
+      }
+    })
+
+    await salvar() // 🔥 salva no banco
+    render()
+  }
+
+  reader.readAsDataURL(file)
+}
+</script>
+ 
+</body>
+</html>
+
