@@ -1,4 +1,3 @@
-//LOGIN//
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -35,8 +34,41 @@ body { transition: all 0.3s ease }
 </style>
  
 </head>
- 
-<body class="bg-slate-100">
+ <body
+  class="min-h-screen bg-cover bg-center bg-fixed"
+  style="background-image:url('https://images.unsplash.com/photo-1680225580508-280697b1ffb1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGVzc29hcyUyMGUlMjBhbmltYWlzfGVufDB8fDB8fHww')">
+
+  <body id="body"
+class="min-h-screen bg-cover bg-center bg-fixed"
+style="background-image:url('https://wallpaper.forfun.com/fetch/da/da48ea8c74aa6b3f2a143a1b25d51742.jpeg')">
+
+  <body id="body"
+class="min-h-screen bg-cover bg-center bg-fixed"
+style="background-image:url('https://wallpaper.forfun.com/fetch/da/da48ea8c74aa6b3f2a143a1b25d51742.jpeg')">
+
+  <div class="fixed inset-0 bg-pink-200/40 -z-10"></div>
+
+  <div id="storyViewer"
+     class="hidden fixed inset-0 bg-black z-50 flex items-center justify-center">
+
+  <div class="absolute top-0 left-0 w-full p-3">
+    <div class="w-full bg-gray-700 h-1 rounded">
+      <div id="storyProgress"
+           class="bg-white h-1 rounded"
+           style="width:0%">
+      </div>
+    </div>
+  </div>
+
+  <button onclick="fecharStory()"
+          class="absolute top-5 right-5 text-white text-3xl">
+    ✕
+  </button>
+
+  <img id="storyImage"
+       class="max-w-full max-h-full object-contain">
+</div>
+
  <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
 
   <div class="p-4 border-b flex justify-between items-center">
@@ -75,7 +107,7 @@ body { transition: all 0.3s ease }
  
 <div class="col-span-3 space-y-4">
  
-  <h1 onclick="toggleSidebar()" class="text-2xl font-bold text-pink-500 cursor-pointer">
+  <h1 onclick="toggleSidebar()" class="text-2xl font-bold text-pink-200" cursor-pointer">
 🐾 PetSocial
 </h1>
  
@@ -145,9 +177,11 @@ body { transition: all 0.3s ease }
 </div>
  
 </div>
+ 
 <div class="col-span-6">
  
   <div id="loginBox" class="bg-white p-5 rounded-xl shadow border">
+    
 <h3 class="font-bold text-slate-700 mb-3 text-sm">Selecione seu modo de acesso</h3>
 <input id="nomeUser" placeholder="Seu nome" class="input mb-2">
 <select id="userTipo" class="select mb-3">
@@ -207,237 +241,500 @@ body { transition: all 0.3s ease }
 </div>
  
 </div>
-
+ 
 <script>
-const state = {
-  user: null,
-  tipo: null,
-  posts: [],
-  stories: [],
-  idadeFiltro: 'Todos',
-  porteFiltro: 'Todos'
-};
 
-const sidebar = document.getElementById('sidebar');
-const perfilBox = document.getElementById('perfilBox');
-const filtroBox = document.getElementById('filtroBox');
-const adminPanel = document.getElementById('adminPanel');
-const loginBox = document.getElementById('loginBox');
-const appBox = document.getElementById('app');
-const info = document.getElementById('info');
-const btnLogout = document.getElementById('btnLogout');
-const perfilNome = document.getElementById('perfilNome');
-const perfilBio = document.getElementById('perfilBio');
-const perfilFoto = document.getElementById('perfilFoto');
-const storiesEl = document.getElementById('stories');
-const feedEl = document.getElementById('feed');
-const chatEl = document.getElementById('chat');
-const tituloChat = document.getElementById('tituloChat');
-const mPosts = document.getElementById('mPosts');
-const mChats = document.getElementById('mChats');
-const mUsers = document.getElementById('mUsers');
+const BIN_ID = "6a24bf56da38895dfe92f511";
+const API_KEY = "$2a$10$QIrE3mo4f9n3TmF5qETxkuB8cnAq2vVI7T8tPB0MzUKPwQCwOfKny"; 
+const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-function toggleSidebar() {
-  sidebar.classList.toggle('-translate-x-full');
+let usuario = null
+let isAdmin = false
+
+let posts = []
+let stories = []
+let chats = []
+
+let filtroIdade = 'Todos'
+let filtroPorte = 'Todos'
+
+let syncAtivo = false
+
+let storyAtual = 0
+let storyTimer = null
+
+function abrirStory(index){
+
+  storyAtual = index
+
+  const viewer = document.getElementById("storyViewer")
+  const imgEl = document.getElementById("storyImage")
+  const progress = document.getElementById("storyProgress")
+
+  viewer.classList.remove("hidden")
+
+  imgEl.src = stories[index].imagem
+
+  progress.style.width = "0%"
+
+  let largura = 0
+
+  clearInterval(storyTimer)
+
+  storyTimer = setInterval(()=>{
+
+    largura += 2
+
+    progress.style.width = largura + "%"
+
+    if(largura >= 100){
+
+      clearInterval(storyTimer)
+
+      proximoStory()
+
+    }
+
+  },100)
 }
 
-function togglePerfil() {
-  perfilBox.classList.toggle('hidden');
-}
+// ==========================
+// BANCO
+// ==========================
+async function carregar(){
+  if(syncAtivo) return;
+  syncAtivo = true
 
-function scrollFeed() {
-  document.getElementById('feed').scrollIntoView({ behavior: 'smooth' });
-}
+  try {
+    const res = await fetch(URL, { headers: { "X-Master-Key": API_KEY } });
+    const data = await res.json();
 
-function abrirChat() {
-  if (!state.user) {
-    chatEl.innerHTML = '<p class="text-slate-500 text-xs">Faça login para abrir canais de mensagens.</p>';
-    return;
+    posts = data.record.posts || [];
+    stories = data.record.stories || [];
+    chats = data.record.chats || [];
+
+    render();
+  } catch(e){
+    console.error(e)
   }
-  tituloChat.textContent = '💬 Mensagens de Adoção';
-  chatEl.innerHTML = `
-    <div class="bg-slate-100 rounded-xl p-3 text-sm text-slate-700">
-      Olá ${state.user}! Este é seu canal de mensagens. Use o feed para começar a conectar com pets e tutores.
-    </div>
-  `;
-  mChats.textContent = state.posts.length ? state.posts.length : 1;
+
+  syncAtivo = false
 }
 
-function toggleFiltros() {
-  filtroBox.classList.toggle('hidden');
-}
-
-function login() {
-  const nome = document.getElementById('nomeUser').value.trim();
-  const tipo = document.getElementById('userTipo').value;
-  if (!nome) {
-    alert('Por favor, informe seu nome para continuar.');
-    return;
+async function salvar(){
+  try {
+    await fetch(URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+      body: JSON.stringify({ posts, stories, chats })
+    });
+  } catch (err) {
+    console.error(err);
   }
-  state.user = nome;
-  state.tipo = tipo;
-  loginBox.classList.add('hidden');
-  appBox.classList.remove('hidden');
-  btnLogout.classList.remove('hidden');
-  info.textContent = `Bem-vindo(a), ${nome}! Você está conectado como ${tipo === 'tutor' ? 'Tutor' : 'Adotante'}.`;
-  perfilNome.textContent = nome;
-  perfilBio.textContent = tipo === 'tutor' ? 'Tutor de pets. Pronto para novas conexões!' : 'Adotante apaixonado por pets.';
-  adminPanel.classList.add('hidden');
-  renderStories();
-  renderFeed();
-  abrirChat();
-  updateCounts();
 }
 
-function loginAdmin() {
-  const nome = document.getElementById('nomeUser').value.trim() || 'Admin';
-  state.user = nome;
-  state.tipo = 'admin';
-  loginBox.classList.add('hidden');
-  appBox.classList.remove('hidden');
-  adminPanel.classList.remove('hidden');
-  btnLogout.classList.remove('hidden');
-  info.textContent = `Modo Admin ativo: ${nome}`;
-  perfilNome.textContent = nome;
-  perfilBio.textContent = 'Administrador do PetSocial.';
-  renderStories();
-  renderFeed();
-  abrirChat();
-  updateCounts();
-}
+//stories
+function criarStory(){
 
-function logout() {
-  state.user = null;
-  state.tipo = null;
-  state.posts = [];
-  state.stories = [];
-  state.idadeFiltro = 'Todos';
-  state.porteFiltro = 'Todos';
-  loginBox.classList.remove('hidden');
-  appBox.classList.add('hidden');
-  adminPanel.classList.add('hidden');
-  perfilBox.classList.add('hidden');
-  filtroBox.classList.add('hidden');
-  btnLogout.classList.add('hidden');
-  info.textContent = 'Aguardando login...';
-  feedEl.innerHTML = '';
-  storiesEl.innerHTML = '';
-  chatEl.innerHTML = 'Faça login para abrir canais de mensagens.';
-  tituloChat.textContent = '💬 Mensagens de Adoção';
-  setFiltroIdade('Todos');
-  setFiltroPorte('Todos');
-  updateCounts();
-}
+  const file = img.files[0]
 
-function salvarFotoPerfil() {
-  const file = document.getElementById('fotoPerfilInput').files[0];
-  if (!file) {
-    alert('Selecione uma imagem antes de atualizar.');
-    return;
+  if(!file){
+    return alert("Escolha uma imagem")
   }
-  const url = URL.createObjectURL(file);
-  perfilFoto.src = url;
-}
 
-function setFiltroIdade(valor) {
-  state.idadeFiltro = valor;
-  document.querySelectorAll('[id^="fIdade-"]').forEach(btn => btn.classList.toggle('ativo', btn.id === `fIdade-${valor}`));
-  renderFeed();
-}
+  const reader = new FileReader()
 
-function setFiltroPorte(valor) {
-  state.porteFiltro = valor;
-  document.querySelectorAll('[id^="fPorte-"]').forEach(btn => btn.classList.toggle('ativo', btn.id === `fPorte-${valor}`));
-  renderFeed();
-}
+  reader.onload = async e => {
 
-function updateCounts() {
-  mPosts.textContent = state.posts.length;
-  mChats.textContent = state.posts.length ? state.posts.length : 0;
-  mUsers.textContent = state.user ? 1 : 0;
-}
+    stories.unshift({
+      id: Date.now(),
+      usuario: usuario.nome,
+      fotoPerfil: usuario.foto,
+      imagem: e.target.result,
+      criadoEm: Date.now()
+    })
 
-function criarPost() {
-  if (!state.user) {
-    alert('Faça login para criar um post.');
-    return;
+    await salvar()
+
+    renderStories()
+
+    img.value = ""
   }
-  const nomePet = document.getElementById('nome').value.trim();
-  const desc = document.getElementById('desc').value.trim();
-  const idade = document.getElementById('idadePet').value;
-  const porte = document.getElementById('portePet').value;
-  const file = document.getElementById('img').files[0];
 
-  if (!nomePet || !desc) {
-    alert('Preencha o nome e a descrição do pet.');
-    return;
-  }
-  const image = file ? URL.createObjectURL(file) : `https://placekitten.com/400/250`;
-  state.posts.unshift({ nomePet, desc, idade, porte, image, autor: state.user });
-  renderFeed();
-  updateCounts();
-  document.getElementById('nome').value = '';
-  document.getElementById('desc').value = '';
-  document.getElementById('img').value = '';
+  reader.readAsDataURL(file)
 }
+function renderStories(){
 
-function criarStory() {
-  if (!state.user) {
-    alert('Faça login para publicar uma story.');
-    return;
-  }
-  const nomePet = document.getElementById('nome').value.trim() || state.user;
-  const file = document.getElementById('img').files[0];
-  const image = file ? URL.createObjectURL(file) : `https://placekitten.com/70/70`;
-  state.stories.unshift({ nome: nomePet, image });
-  renderStories();
-}
+  const el = document.getElementById("stories")
 
-function renderStories() {
-  storiesEl.innerHTML = '';
-  if (!state.stories.length) {
-    storiesEl.innerHTML = '<p class="text-slate-500 text-xs">Publique uma story para aparecer aqui.</p>';
-    return;
-  }
-  state.stories.forEach(story => {
-    const item = document.createElement('div');
-    item.className = 'story';
-    item.title = story.nome;
-    item.innerHTML = `<img src="${story.image}" alt="${story.nome}" class="w-full h-full object-cover">`;
-    storiesEl.appendChild(item);
-  });
-}
+  const agora = Date.now()
 
-function renderFeed() {
-  feedEl.innerHTML = '';
-  const filtered = state.posts.filter(post => {
-    const idadeOk = state.idadeFiltro === 'Todos' || post.idade === state.idadeFiltro;
-    const porteOk = state.porteFiltro === 'Todos' || post.porte === state.porteFiltro;
-    return idadeOk && porteOk;
-  });
-  if (!filtered.length) {
-    feedEl.innerHTML = '<div class="bg-white p-4 rounded-xl shadow border text-slate-500">Nenhum post encontrado. Crie o primeiro pet para adoção!</div>';
-    return;
-  }
-  filtered.forEach(post => {
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded-xl shadow border overflow-hidden fade-in';
-    card.innerHTML = `
-      <img src="${post.image}" alt="${post.nomePet}" class="w-full h-44 object-cover">
-      <div class="p-4">
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="font-bold text-slate-700">${post.nomePet}</h4>
-          <span class="text-[11px] text-slate-500 uppercase tracking-[.2em]">${post.idade} • ${post.porte}</span>
+  stories = stories.filter(
+    s => agora - s.criadoEm < 86400000
+  ) // 24h
+
+  let html = ""
+
+  stories.forEach((s,index)=>{
+
+    html += `
+      <div class="flex flex-col items-center">
+
+        <div class="story"
+             onclick="abrirStory(${index})">
+
+          <img src="${s.imagem}"
+               class="w-full h-full object-cover">
+
         </div>
-        <p class="text-sm text-slate-600 mb-3">${post.desc}</p>
-        <p class="text-[11px] text-slate-400">Publicado por ${post.autor}</p>
+
+        <span class="text-[10px] mt-1">
+          ${s.usuario}
+        </span>
+
       </div>
-    `;
-    feedEl.appendChild(card);
-  });
+    `
+  })
+
+  el.innerHTML = html
 }
 
-logout();
+function proximoStory(){
+
+  storyAtual++
+
+  if(storyAtual >= stories.length){
+
+    fecharStory()
+    return
+
+  }
+
+  abrirStory(storyAtual)
+}
+
+// ==========================
+// LOGIN
+// ==========================
+function login(){
+  const nome = document.getElementById("nomeUser").value.trim()
+  const tipo = document.getElementById("userTipo").value
+  if(!nome) return alert("Informe seu nome")
+
+  usuario = {
+    id: Date.now(),
+    nome,
+    tipo,
+    foto: "https://placekitten.com/200/200",
+    bio: tipo === "tutor" ? "Tutor de pets 🐶" : "Buscando um pet ❤️"
+  }
+
+  iniciar()
+}
+
+function loginAdmin(){
+  usuario = { id: 1, nome: "Admin", tipo: "admin" }
+  
+  isAdmin = true
+  iniciar()
+}
+
+function fecharStory(){
+
+  clearInterval(storyTimer)
+
+  document
+    .getElementById("storyViewer")
+    .classList.add("hidden")
+}
+
+
+function iniciar(){
+
+  document.getElementById("body").style.backgroundImage =
+    "url('fundo-app.jpg')";
+
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("filtroBox").classList.remove("hidden");
+
+  document.getElementById("perfilNome").innerText = usuario.nome;
+  document.getElementById("perfilBio").innerText = usuario.bio;
+  document.getElementById("perfilFoto").src = usuario.foto;
+  document.getElementById("body").style.backgroundImage =
+  "url('https://wallpaper.forfun.com/fetch/da/da48ea8c74aa6b3f2a143a1b25d51742.jpeg')";
+  document.getElementById("overlay").className =
+"fixed inset-0 bg-black/20";
+  carregar();
+  renderStories();
+}
+
+function logout(){ location.reload() }
+
+// ==========================
+// POST
+// ==========================
+function criarPost(){
+  const nomePet = nome.value.trim()
+  const descPet = desc.value.trim()
+  const idade = idadePet.value
+  const porte = portePet.value
+  const file = img.files[0]
+
+  if(!nomePet || !descPet || !file) return alert("Preencha tudo")
+
+  if(file.size > 800000){
+    return alert("Imagem muito grande (máx 800kb)")
+  }
+
+  const reader = new FileReader()
+  reader.onload = async e => {
+    posts.unshift({
+      id: Date.now(),
+      nome: nomePet,
+      desc: descPet,
+      idade, porte,
+      tutorId: usuario.id,
+      tutorNome: usuario.nome,
+      tutorFoto: usuario.foto,
+      foto: e.target.result,
+      likes: [],
+      comentarios: []
+    })
+
+    await salvar()
+    render()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    nome.value = ""
+    desc.value = ""
+    img.value = ""
+  }
+  reader.readAsDataURL(file)
+}
+
+// ==========================
+// FEED
+// ==========================
+function renderFeed(){
+  const f = document.getElementById("feed")
+
+  const filtrados = posts.filter(p => {
+    return (filtroIdade === 'Todos' || p.idade === filtroIdade) &&
+           (filtroPorte === 'Todos' || p.porte === filtroPorte)
+  })
+
+  if(filtrados.length === 0){
+    f.innerHTML = `<p>Nenhum pet encontrado</p>`
+    return
+  }
+
+  let html = ""
+
+  filtrados.forEach(p => {
+    const jaCurtiu = p.likes.includes(usuario.id)
+
+    html += `
+<div class="bg-white p-4 rounded mb-3">
+
+  <div class="flex items-center gap-2 mb-2">
+    <img src="${p.tutorFoto}" class="w-8 h-8 rounded-full object-cover">
+    <p class="text-xs font-bold">${p.tutorNome}</p>
+  </div>
+
+  <img src="${p.foto}" class="w-full h-56 object-cover rounded mb-2">
+
+  <p class="text-xs">${p.desc}</p>
+
+  <button onclick="curtir(${p.id})">
+    ${jaCurtiu ? "❤️" : "🤍"} ${p.likes.length}
+  </button>
+
+  <button onclick="interessarAdocao(${p.id}, '${p.nome}', ${p.tutorId}, '${p.tutorNome}')">
+    Adotar
+  </button>
+</div>
+`
+
+  })
+
+  f.innerHTML = html
+}
+
+// ==========================
+// LIKE
+// ==========================
+function curtir(id){
+  const p = posts.find(x => x.id === id)
+
+  if(p.likes.includes(usuario.id)){
+    p.likes = p.likes.filter(x => x !== usuario.id)
+  } else {
+    p.likes.push(usuario.id)
+  }
+
+  salvar()
+  renderFeed()
+}
+
+// ==========================
+// CHAT CORRIGIDO ✅
+// ==========================
+async function interessarAdocao(petId, petNome, tutorId, tutorNome){
+
+  const ids = [usuario.id, tutorId].sort()
+  const chave = `${ids[0]}-${ids[1]}`
+
+  let canal = chats.find(c => c.chave === chave)
+
+  if(!canal){
+    canal = {
+      id: Date.now(),
+      chave,
+      adotanteId: usuario.id,
+      adotanteNome: usuario.nome,
+      tutorId,
+      tutorNome,
+      mensagens: []
+    }
+    chats.push(canal)
+  }
+
+  canal.mensagens.push({
+    remetente: usuario.nome,
+    texto: `Quero adotar ${petNome}!`
+  })
+
+  await salvar()
+  renderChats()
+}
+
+// ==========================
+// RENDER CHAT
+// ==========================
+function renderChats(){
+  const el = document.getElementById("chat")
+
+  let html = ""
+
+  chats.forEach(c => {
+    html += `<div class="mb-2">`
+
+    c.mensagens.forEach(m => {
+      html += `<p><b>${m.remetente}:</b> ${m.texto}</p>`
+    })
+
+    html += `
+      <input id="msg-${c.id}" class="border p-1 text-xs">
+      <button onclick="responder(${c.id})">Enviar</button>
+    </div>`
+  })
+
+  el.innerHTML = html
+  el.scrollTop = el.scrollHeight
+}
+
+// ==========================
+// RESPONDER
+// ==========================
+async function responder(id){
+  const input = document.getElementById(`msg-${id}`)
+  const txt = input.value.trim()
+
+  if(!txt) return
+
+  const c = chats.find(x => x.id === id)
+
+  c.mensagens.push({
+    remetente: usuario.nome,
+    texto: txt
+  })
+
+  input.value = ""
+
+  await salvar()
+  renderChats()
+}
+
+// ==========================
+// RESET SEGURO
+// ==========================
+async function resetar(){
+  const conf = prompt("Digite RESETAR para apagar tudo")
+
+  if(conf === "RESETAR"){
+    posts = []
+    stories = []
+    chats = []
+    await salvar()
+    render()
+  }
+}
+
+// ==========================
+function render(){
+  renderFeed()
+  renderChats()
+  renderStories()
+}
+
+setInterval(() => {
+  if(usuario) carregar()
+}, 10000)
+function toggleSidebar(){
+  const sidebar = document.getElementById("sidebar")
+  sidebar.classList.toggle("-translate-x-full")
+}
+
+// funções extras opcionais
+function scrollFeed(){
+  document.getElementById("feed").scrollIntoView({ behavior: "smooth" })
+  toggleSidebar()
+}
+
+function abrirChat(){
+  document.getElementById("chat").scrollIntoView({ behavior: "smooth" })
+  toggleSidebar()
+}
+
+function toggleFiltros(){
+  document.getElementById("filtroBox").classList.toggle("hidden")
+  toggleSidebar()
+}
+
+function togglePerfil(){
+  document.getElementById("perfilBox").classList.toggle("hidden")
+  toggleSidebar()
+}
+
+
+
+async function salvarFotoPerfil(){
+  const input = document.getElementById("fotoPerfilInput")
+  const file = input.files[0]
+
+  if(!file) return alert("Escolha uma imagem")
+
+  const reader = new FileReader()
+
+  reader.onload = async e => {
+    usuario.foto = e.target.result
+    document.getElementById("perfilFoto").src = usuario.foto
+
+    // atualiza os posts do usuário
+    posts.forEach(p => {
+      if(p.tutorId === usuario.id){
+        p.tutorFoto = usuario.foto
+      }
+    })
+
+    await salvar() // 🔥 salva no banco
+    render()
+  }
+
+  reader.readAsDataURL(file)
+}
 </script>
+ 
 </body>
 </html>
