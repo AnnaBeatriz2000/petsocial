@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetSocial 🐾 - A rede social que conecta pets e famílias</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+    * { font-family: 'Inter', sans-serif; }
+
+    html { scroll-behavior: smooth; }
+
+    /* Hero gradient background */
+    .hero-bg {
+      background: linear-gradient(135deg, #1a0533 0%, #3b0764 40%, #831843 100%);
+    }
+
+    /* Floating paw animation */
+    .paw {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.08;
+      animation: floatPaw linear infinite;
+      pointer-events: none;
+    }
+    @keyframes floatPaw {
+      0%   { transform: translateY(0px) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.08; }
+      90%  { opacity: 0.08; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Card hover effect */
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 60px rgba(236, 72, 153, 0.2);
+    }
+
+    /* Pet card */
+    .pet-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .pet-card:hover {
+      transform: scale(1.04);
+    }
+
+    /* Pulse badge */
+    .pulse-badge {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    /* Stats counter animation */
+    .stat-card {
+      animation: fadeSlideUp 0.6s ease both;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.2s; }
+    .stat-card:nth-child(4) { animation-delay: 0.3s; }
+
+    /* CTA button shine */
+    .cta-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -75%;
+      width: 50%;
+      height: 200%;
+      background: rgba(255,255,255,0.2);
+      transform: skewX(-20deg);
+      animation: shine 3s ease infinite;
+    }
+    @keyframes shine {
+      0%   { left: -75%; }
+      50%  { left: 150%; }
+      100% { left: 150%; }
+    }
+
+    /* Scroll fade in */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Status badges */
+    .status-disponivel { background: #dcfce7; color: #166534; }
+    .status-processo   { background: #fef3c7; color: #92400e; }
+    .status-adotado    { background: #fce7f3; color: #831843; }
+  </style>
+</head>
+<body class="bg-white overflow-x-hidden">
+
+  <!-- Floating paws (decorative) -->
+  <div id="paws"></div>
+
+  <!-- ========================== NAVBAR ========================== -->
+  <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+      <a href="#" class="text-xl font-black gradient-text">🐾 PetSocial</a>
+      <div class="hidden md:flex gap-8 text-sm font-semibold text-gray-600">
+        <a href="#sobre"       class="hover:text-pink-500 transition">Sobre</a>
+        <a href="#funcionalidades" class="hover:text-pink-500 transition">Funcionalidades</a>
+        <a href="#pets"        class="hover:text-pink-500 transition">Pets</a>
+        <a href="#status"      class="hover:text-pink-500 transition">Status</a>
+        <a href="#como-usar"   class="hover:text-pink-500 transition">Como Usar</a>
+      </div>
+      <a href="petsocial.html" class="cta-btn bg-gradient-to-r from-pink-500 to-purple-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow hover:shadow-pink-400/50 transition">
+        Acessar App →
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========================== HERO ========================== -->
+  <section class="hero-bg min-h-screen flex items-center justify-center text-white pt-20 pb-16 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,#ec4899_0%,transparent_50%),radial-gradient(circle_at_80%_50%,#a855f7_0%,transparent_50%)]"></div>
+
+    <div class="max-w-4xl mx-auto text-center px-6 relative z-10">
+      <span class="pulse-badge inline-block bg-pink-500/20 border border-pink-400/40 text-pink-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6">
+        🐾 A rede social dos pets
+      </span>
+
+      <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+        Conecte pets a<br>
+        <span class="gradient-text">novas famílias</span>
+      </h1>
+
+      <p class="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
+        O PetSocial é uma plataforma gratuita para tutores divulgarem seus pets para adoção e conectar adotantes com o animal perfeito.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="petsocial.html" class="cta-btn bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white px-8 py-4 rounded-full font-black text-base shadow-lg shadow-pink-500/40 transition">
+          🐾 Entrar no App
+        </a>
+        <a href="#sobre" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-8 py-4 rounded-full font-bold text-base transition">
+          Saiba mais ↓
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 mt-16 max-w-lg mx-auto">
+        <div class="stat-card text-center">
+          <p class="text-3xl font-black gradient-text">100%</p>
+          <p class="text-xs text-white/60 mt-1">Gratuito</p>
+        </div>
+        <div class="stat-card text-center">
+          <p class="text-3xl font-black gradient-text">🐕🐈</p>
+          <p class="text-xs text-white/60 mt-1">Cães & Gatos</p>
+        </div>
+        <div class="stat-card text-center">
+          <p class="text-3xl font-black gradient-text">💬</p>
+          <p class="text-xs text-white/60 mt-1">Chat Direto</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== SOBRE ========================== -->
+  <section id="sobre" class="py-24 bg-slate-50">
+    <div class="max-w-6xl mx-auto px-6 fade-in-section">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="text-pink-500 font-bold text-sm uppercase tracking-widest">Sobre o Projeto</span>
+          <h2 class="text-4xl font-black text-gray-900 mt-2 mb-6">
+            Uma plataforma feita com <span class="gradient-text">❤️ para pets</span>
+          </h2>
+          <p class="text-gray-600 leading-relaxed mb-4">
+            O PetSocial nasceu da ideia de tornar a adoção responsável mais acessível e conectada. Tutores que precisam encontrar um novo lar para seus pets podem publicar anúncios completos com fotos, descrições e informações detalhadas.
+          </p>
+          <p class="text-gray-600 leading-relaxed mb-8">
+            Adotantes encontram seus futuros companheiros com filtros intuitivos e podem conversar diretamente com os tutores pelo chat integrado — tudo em um só lugar.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <span class="bg-pink-100 text-pink-700 font-semibold text-sm px-4 py-2 rounded-full">🏠 Adoção Responsável</span>
+            <span class="bg-purple-100 text-purple-700 font-semibold text-sm px-4 py-2 rounded-full">💬 Chat Integrado</span>
+            <span class="bg-blue-100 text-blue-700 font-semibold text-sm px-4 py-2 rounded-full">📸 Stories de Pets</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="pet-card rounded-2xl overflow-hidden shadow-lg row-span-2">
+            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=500&fit=crop" alt="Dog" class="w-full h-full object-cover">
+          </div>
+          <div class="pet-card rounded-2xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1574158622682-e40ad4b0b495?w=400&h=200&fit=crop" alt="Cat" class="w-full h-48 object-cover">
+          </div>
+          <div class="pet-card rounded-2xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=200&fit=crop" alt="Pets" class="w-full h-48 object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== FUNCIONALIDADES ========================== -->
+  <section id="funcionalidades" class="py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 fade-in-section">
+        <span class="text-pink-500 font-bold text-sm uppercase tracking-widest">Funcionalidades</span>
+        <h2 class="text-4xl font-black text-gray-900 mt-2">Tudo que você precisa</h2>
+        <p class="text-gray-500 mt-3 max-w-xl mx-auto">Do cadastro do pet até o match com a família perfeita — o PetSocial cuida de tudo.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 fade-in-section">
+        <div class="feature-card bg-gradient-to-br from-pink-50 to-rose-50 border border-pink-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">📢</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Anunciar Pet</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Tutores publicam fotos, descrevem o pet e definem idade e porte. Tudo de forma simples e rápida.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">📷</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Stories de Pets</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Publique stories circulares para dar visibilidade ao seu pet, como nas melhores redes sociais.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">🔍</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Busca Avançada</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Filtre por nome, idade e porte do pet para encontrar o companheiro ideal em segundos.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">💬</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Chat de Adoção</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Adotantes interessados entram em contato direto com tutores por canais de chat integrados.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">⭐</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Favoritos</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Salve os pets que mais chamaram atenção e acesse sua lista de favoritos a qualquer momento.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-slate-50 to-gray-100 border border-gray-100 rounded-2xl p-6">
+          <div class="text-4xl mb-4">🛡️</div>
+          <h3 class="font-black text-gray-800 text-lg mb-2">Painel Admin</h3>
+          <p class="text-gray-600 text-sm leading-relaxed">Administradores têm acesso a métricas, estatísticas e controle total do sistema.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== PETS DE EXEMPLO ========================== -->
+  <section id="pets" class="py-24 bg-slate-50">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 fade-in-section">
+        <span class="text-pink-500 font-bold text-sm uppercase tracking-widest">Pets em Destaque</span>
+        <h2 class="text-4xl font-black text-gray-900 mt-2">Conheça alguns pets 🐾</h2>
+        <p class="text-gray-500 mt-3">Esses são exemplos do tipo de anúncio que tutores publicam no PetSocial.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 fade-in-section">
+        <!-- Pet 1 -->
+        <div class="pet-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+          <div class="relative">
+            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=260&fit=crop" alt="Rex" class="w-full h-52 object-cover">
+            <span class="absolute top-3 right-3 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">✅ Disponível</span>
+          </div>
+          <div class="p-5">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-black text-lg text-gray-800">Rex</h3>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Filhote · Médio</span>
+            </div>
+            <p class="text-sm text-gray-600">Labrador brincalhão e carinhoso. Adora crianças e se dá bem com outros pets.</p>
+            <div class="mt-4 flex gap-2">
+              <button class="flex-1 bg-pink-500 text-white text-sm font-bold py-2 rounded-lg hover:bg-pink-600 transition">🐾 Adotar</button>
+              <button class="bg-gray-100 text-gray-600 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-200 transition">❤️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pet 2 -->
+        <div class="pet-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+          <div class="relative">
+            <img src="https://images.unsplash.com/photo-1574158622682-e40ad4b0b495?w=400&h=260&fit=crop" alt="Luna" class="w-full h-52 object-cover">
+            <span class="absolute top-3 right-3 bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">⏳ Em Processo</span>
+          </div>
+          <div class="p-5">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-black text-lg text-gray-800">Luna</h3>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Adulto · Pequeno</span>
+            </div>
+            <p class="text-sm text-gray-600">Gatinha independente e tranquila. Perfeita para apartamentos e pessoas que trabalham.</p>
+            <div class="mt-4 flex gap-2">
+              <button class="flex-1 bg-gray-300 text-gray-500 text-sm font-bold py-2 rounded-lg cursor-not-allowed">Em processo...</button>
+              <button class="bg-gray-100 text-gray-600 text-sm font-bold px-3 py-2 rounded-lg hover:bg-gray-200 transition">⭐</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pet 3 -->
+        <div class="pet-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+          <div class="relative">
+            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=260&fit=crop" alt="Bob" class="w-full h-52 object-cover">
+            <span class="absolute top-3 right-3 bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full">❤️ Adotado</span>
+          </div>
+          <div class="p-5">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="font-black text-lg text-gray-800">Bob & Mel</h3>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Filhotes · Pequeno</span>
+            </div>
+            <p class="text-sm text-gray-600">Dupla inseparável que encontrou um lar cheio de amor através do PetSocial. 🎉</p>
+            <div class="mt-4">
+              <div class="flex items-center gap-2 bg-pink-50 text-pink-600 text-sm font-bold px-4 py-2 rounded-lg">
+                ❤️ Já encontraram lar!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== STATUS DE ADOÇÃO ========================== -->
+  <section id="status" class="py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-6 text-center fade-in-section">
+      <span class="text-pink-500 font-bold text-sm uppercase tracking-widest">Sistema de Status</span>
+      <h2 class="text-4xl font-black text-gray-900 mt-2 mb-4">Acompanhe cada etapa</h2>
+      <p class="text-gray-500 mb-16 max-w-xl mx-auto">Cada pet tem um status de adoção em tempo real. O tutor pode atualizar com um clique diretamente no card do pet.</p>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="feature-card bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-8">
+          <div class="text-5xl mb-4">✅</div>
+          <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Disponível</span>
+          <p class="text-gray-600 text-sm mt-4 leading-relaxed">O pet está disponível para adoção. Qualquer pessoa pode demonstrar interesse e iniciar uma conversa.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-200 rounded-2xl p-8">
+          <div class="text-5xl mb-4">⏳</div>
+          <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">Em Processo</span>
+          <p class="text-gray-600 text-sm mt-4 leading-relaxed">Uma adoção está em negociação. O pet pode ser reservado enquanto o tutor e adotante acertam os detalhes.</p>
+        </div>
+        <div class="feature-card bg-gradient-to-br from-pink-50 to-rose-50 border-2 border-pink-200 rounded-2xl p-8">
+          <div class="text-5xl mb-4">❤️</div>
+          <span class="bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full">Adotado</span>
+          <p class="text-gray-600 text-sm mt-4 leading-relaxed">O pet encontrou seu lar! O anúncio permanece como registro e celebração da adoção bem-sucedida.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== COMO USAR ========================== -->
+  <section id="como-usar" class="py-24 hero-bg text-white">
+    <div class="max-w-5xl mx-auto px-6 text-center fade-in-section">
+      <span class="text-pink-300 font-bold text-sm uppercase tracking-widest">Como Funciona</span>
+      <h2 class="text-4xl font-black mt-2 mb-16">Em 3 passos simples</h2>
+
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-pink-500 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 shadow-lg shadow-pink-500/40">1</div>
+          <h3 class="font-black text-lg mb-2">Escolha seu perfil</h3>
+          <p class="text-white/70 text-sm">Entre como <strong class="text-pink-300">Tutor</strong> para anunciar seu pet ou como <strong class="text-pink-300">Adotante</strong> para encontrar um companheiro.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 shadow-lg shadow-purple-500/40">2</div>
+          <h3 class="font-black text-lg mb-2">Publique ou Explore</h3>
+          <p class="text-white/70 text-sm">Tutores postam fotos e descrições. Adotantes filtram por idade e porte, curtem e salvam os pets favoritos.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-rose-500 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 shadow-lg shadow-rose-500/40">3</div>
+          <h3 class="font-black text-lg mb-2">Conecte-se</h3>
+          <p class="text-white/70 text-sm">Demonstre interesse clicando em "Adotar" e converse diretamente com o tutor pelo chat integrado.</p>
+        </div>
+      </div>
+
+      <a href="petsocial.html" class="cta-btn inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-4 rounded-full font-black text-lg shadow-xl shadow-pink-500/40 transition">
+        🐾 Começar Agora — É Grátis!
+      </a>
+    </div>
+  </section>
+
+  <!-- ========================== FOOTER ========================== -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-8 mb-8">
+        <div>
+          <h4 class="font-black text-lg gradient-text mb-3">🐾 PetSocial</h4>
+          <p class="text-gray-400 text-sm leading-relaxed">A plataforma gratuita que conecta pets e famílias. Feito com ❤️ para o bem-estar animal.</p>
+        </div>
+        <div>
+          <h4 class="font-bold mb-3 text-gray-300">Páginas</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="petsocial.html" class="hover:text-pink-400 transition">📱 Entrar no App</a></li>
+            <li><a href="login.html"     class="hover:text-pink-400 transition">🔐 Login</a></li>
+            <li><a href="chat.html"      class="hover:text-pink-400 transition">💬 Chat</a></li>
+            <li><a href="index.html"     class="hover:text-pink-400 transition">📝 Comentários</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-3 text-gray-300">Status de Adoção</h4>
+          <div class="space-y-2 text-sm">
+            <span class="inline-block status-disponivel font-semibold px-3 py-1 rounded-full text-xs">✅ Disponível</span><br>
+            <span class="inline-block status-processo font-semibold px-3 py-1 rounded-full text-xs">⏳ Em Processo</span><br>
+            <span class="inline-block status-adotado font-semibold px-3 py-1 rounded-full text-xs">❤️ Adotado</span>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
+        © 2026 PetSocial · Todos os direitos reservados · Feito com 🐾 e muito ❤️
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Floating paws ---
+    const pawContainer = document.getElementById('paws');
+    const pawEmojis = ['🐾','🐶','🐱','❤️'];
+    for(let i = 0; i < 15; i++){
+      const el = document.createElement('span');
+      el.className = 'paw';
+      el.textContent = pawEmojis[Math.floor(Math.random() * pawEmojis.length)];
+      el.style.left   = Math.random() * 100 + 'vw';
+      el.style.top    = Math.random() * 100 + 'vh';
+      el.style.fontSize = (1 + Math.random() * 2) + 'rem';
+      el.style.animationDuration = (8 + Math.random() * 12) + 's';
+      el.style.animationDelay   = (Math.random() * 10) + 's';
+      pawContainer.appendChild(el);
+    }
+
+    // --- Scroll fade-in ---
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
