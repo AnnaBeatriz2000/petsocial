@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONGs Parceiras — PetSocial 🐾</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    * { font-family: "Inter", sans-serif; }
+    html { scroll-behavior: smooth; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #f472b6, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-bg {
+      background: linear-gradient(135deg, #1a0533 0%, #3b0764 40%, #831843 100%);
+    }
+    .ong-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .ong-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 50px rgba(236, 72, 153, 0.15);
+    }
+    .badge-ong {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .stat-num {
+      background: linear-gradient(135deg, #f472b6, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 900;
+      font-size: 2rem;
+    }
+    .fade-in {
+      animation: fadeUp 0.5s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ong-card:nth-child(2) { animation-delay: 0.1s; }
+    .ong-card:nth-child(3) { animation-delay: 0.2s; }
+    .ong-card:nth-child(4) { animation-delay: 0.3s; }
+    .ong-card:nth-child(5) { animation-delay: 0.4s; }
+    .ong-card:nth-child(6) { animation-delay: 0.5s; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Navbar -->
+  <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+      <a href="landing.html" class="text-xl font-black gradient-text">🐾 PetSocial</a>
+      <div class="hidden md:flex gap-6 text-sm font-semibold text-gray-600">
+        <a href="landing.html" class="hover:text-pink-500 transition">Início</a>
+        <a href="ongs.html" class="text-pink-500 font-bold">🏥 ONGs</a>
+        <a href="login.html" class="hover:text-pink-500 transition">Entrar</a>
+      </div>
+      <a href="login.html?tipo=ong" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-5 py-2 rounded-full font-bold text-sm shadow hover:shadow-pink-400/50 transition">
+        Cadastrar ONG →
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-bg pt-32 pb-20 text-white text-center">
+    <div class="max-w-3xl mx-auto px-6">
+      <span class="inline-block bg-pink-500/20 border border-pink-400/40 text-pink-300 text-xs font-bold px-4 py-1.5 rounded-full mb-4">
+        🏥 Resgate &amp; Adoção Responsável
+      </span>
+      <h1 class="text-5xl font-black mb-4">ONGs <span class="gradient-text">Parceiras</span></h1>
+      <p class="text-white/70 text-lg max-w-xl mx-auto mb-8">
+        Conheça as organizações que salvam vidas todos os dias. Apoie, adote e faça a diferença!
+      </p>
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-6 max-w-md mx-auto">
+        <div><p class="stat-num">12+</p><p class="text-white/60 text-xs">ONGs Parceiras</p></div>
+        <div><p class="stat-num">500+</p><p class="text-white/60 text-xs">Pets Resgatados</p></div>
+        <div><p class="stat-num">300+</p><p class="text-white/60 text-xs">Adoções</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search bar -->
+  <section class="bg-white border-b py-4 sticky top-16 z-40 shadow-sm">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row gap-3">
+      <input id="searchOng" type="text" placeholder="🔍 Buscar ONG por nome ou cidade..." 
+        class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pink-400 transition"
+        oninput="filtrarOngs()">
+      <select id="filtroEstado" onchange="filtrarOngs()"
+        class="border-2 border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-pink-400 transition">
+        <option value="">Todos os estados</option>
+        <option>SP</option><option>RJ</option><option>MG</option>
+        <option>RS</option><option>PR</option><option>BA</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- ONGs Grid -->
+  <section class="max-w-6xl mx-auto px-6 py-12">
+    <div id="ongsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <p id="semResultados" class="hidden text-center text-gray-400 py-12 text-lg">Nenhuma ONG encontrada.</p>
+  </section>
+
+  <!-- CTA: cadastrar ONG -->
+  <section class="hero-bg text-white py-20 text-center">
+    <div class="max-w-2xl mx-auto px-6">
+      <div class="text-5xl mb-4">🏥</div>
+      <h2 class="text-3xl font-black mb-3">Sua ONG no PetSocial</h2>
+      <p class="text-white/70 mb-8">Cadastre sua organização gratuitamente e conecte-se com centenas de adotantes.</p>
+      <a href="login.html" class="inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-10 py-4 rounded-full font-black text-base shadow-xl transition">
+        🐾 Cadastrar minha ONG
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-8 text-center text-sm text-gray-500">
+    © 2026 PetSocial · <a href="landing.html" class="hover:text-pink-400 transition">Página inicial</a> · Feito com 🐾 e ❤️
+  </footer>
+
+  <script>
+    const ongsData = [
+      {
+        nome: "Patinhas Solidárias",
+        cidade: "São Paulo", estado: "SP",
+        descricao: "Resgatamos cães e gatos de situação de rua e facilitamos adoção responsável na Grande SP.",
+        pets: 45, adocoes: 120,
+        foto: "https://images.unsplash.com/photo-1601979031925-424e53b6caaa?w=400&h=250&fit=crop",
+        instagram: "@patinhassolidarias",
+        tags: ["Cães", "Gatos", "Resgate"]
+      },
+      {
+        nome: "Lar Feliz Animal",
+        cidade: "Rio de Janeiro", estado: "RJ",
+        descricao: "ONG dedicada ao resgate de animais vítimas de maus-tratos no RJ. Trabalhamos com voluntários 100%.",
+        pets: 30, adocoes: 95,
+        foto: "https://images.unsplash.com/photo-1548681528-6a5c45b66b42?w=400&h=250&fit=crop",
+        instagram: "@larfelizanimal",
+        tags: ["Gatos", "Maus-tratos", "Voluntários"]
+      },
+      {
+        nome: "Amigos de Patas",
+        cidade: "Belo Horizonte", estado: "MG",
+        descricao: "Promovemos feiras de adoção mensais em BH e região. Mais de 300 adoções realizadas!",
+        pets: 60, adocoes: 310,
+        foto: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=250&fit=crop",
+        instagram: "@amigosdepatsbh",
+        tags: ["Cães", "Feiras", "Adoção"]
+      },
+      {
+        nome: "Fundo Pet RS",
+        cidade: "Porto Alegre", estado: "RS",
+        descricao: "Atuamos no sul do Brasil com foco em castração, vacinação e adoção de animais abandonados.",
+        pets: 20, adocoes: 75,
+        foto: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=250&fit=crop",
+        instagram: "@fundopetrs",
+        tags: ["Castração", "Vacinação", "Cães"]
+      },
+      {
+        nome: "Gatil Esperança",
+        cidade: "Curitiba", estado: "PR",
+        descricao: "Especializada em acolhimento de gatos. Lar temporário para mais de 50 gatinhos aguardando adoção.",
+        pets: 52, adocoes: 180,
+        foto: "https://images.unsplash.com/photo-1574158622682-e40ad4b0b495?w=400&h=250&fit=crop",
+        instagram: "@gatilsperanca",
+        tags: ["Gatos", "Lar temporário", "PR"]
+      },
+      {
+        nome: "SOS Animais BA",
+        cidade: "Salvador", estado: "BA",
+        descricao: "Resgate emergencial e adoção responsável na Bahia. Aceitamos doações e voluntários.",
+        pets: 35, adocoes: 88,
+        foto: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&h=250&fit=crop",
+        instagram: "@sosanimaisba",
+        tags: ["Emergência", "Doações", "Cães"]
+      }
+    ];
+
+    function renderOngs(lista) {
+      const grid = document.getElementById("ongsGrid");
+      const sem = document.getElementById("semResultados");
+
+      if (!lista.length) {
+        grid.innerHTML = "";
+        sem.classList.remove("hidden");
+        return;
+      }
+      sem.classList.add("hidden");
+
+      grid.innerHTML = lista.map((o, i) => `
+        <div class="ong-card fade-in bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100" style="animation-delay:${i*0.08}s">
+          <div class="relative">
+            <img src="${o.foto}" alt="${o.nome}" class="w-full h-44 object-cover">
+            <span class="badge-ong absolute top-3 left-3">🏥 ONG</span>
+          </div>
+          <div class="p-5">
+            <div class="flex justify-between items-start mb-1">
+              <h3 class="font-black text-gray-900 text-lg">${o.nome}</h3>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">${o.cidade} · ${o.estado}</span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3 leading-relaxed">${o.descricao}</p>
+            <div class="flex gap-3 text-center mb-3">
+              <div class="flex-1 bg-pink-50 rounded-xl py-2">
+                <p class="font-black text-pink-600 text-lg">${o.pets}</p>
+                <p class="text-xs text-gray-500">Pets</p>
+              </div>
+              <div class="flex-1 bg-purple-50 rounded-xl py-2">
+                <p class="font-black text-purple-600 text-lg">${o.adocoes}</p>
+                <p class="text-xs text-gray-500">Adoções</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-4">
+              ${o.tags.map(t => `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">${t}</span>`).join("")}
+            </div>
+            <div class="flex gap-2">
+              <a href="petsocial.html" class="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-bold py-2 rounded-xl text-center hover:opacity-90 transition">
+                🐾 Ver Pets
+              </a>
+              <a href="https://instagram.com/${o.instagram.replace('@','')}" target="_blank"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold px-4 py-2 rounded-xl transition">
+                📸
+              </a>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function filtrarOngs() {
+      const termo = document.getElementById("searchOng").value.toLowerCase();
+      const estado = document.getElementById("filtroEstado").value;
+      const filtrado = ongsData.filter(o => {
+        const matchTermo = !termo || o.nome.toLowerCase().includes(termo) || o.cidade.toLowerCase().includes(termo);
+        const matchEstado = !estado || o.estado === estado;
+        return matchTermo && matchEstado;
+      });
+      renderOngs(filtrado);
+    }
+
+    renderOngs(ongsData);
+  </script>
+</body>
+</html>

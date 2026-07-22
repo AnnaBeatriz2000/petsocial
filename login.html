@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entrar — PetSocial 🐾</title>
+  <title>Entrar â€” PetSocial ðŸ¾</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
@@ -148,7 +148,7 @@
 
   <!-- Back link -->
   <a href="landing.html" class="fixed top-5 left-5 z-50 flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition">
-    ← Voltar
+    â† Voltar
   </a>
 
   <!-- Login Card -->
@@ -156,23 +156,28 @@
 
     <!-- Logo -->
     <div class="text-center mb-8">
-      <div class="text-5xl mb-3">🐾</div>
+      <div class="text-5xl mb-3">ðŸ¾</div>
       <h1 class="text-3xl font-black gradient-text">PetSocial</h1>
-      <p class="text-gray-500 text-sm mt-1">Conectando pets e famílias</p>
+      <p class="text-gray-500 text-sm mt-1">Conectando pets e famÃ­lias</p>
     </div>
 
     <!-- Mode selector -->
-    <p class="text-sm font-bold text-gray-700 mb-3">Como você quer entrar?</p>
-    <div class="grid grid-cols-2 gap-3 mb-6" id="modeSelector">
+    <p class="text-sm font-bold text-gray-700 mb-3">Como vocÃª quer entrar?</p>
+        <div class="grid grid-cols-3 gap-3 mb-6" id="modeSelector">
       <div class="mode-card selected" onclick="selectMode('adotante', this)">
-        <div class="text-2xl mb-1">🏠</div>
+        <div class="text-2xl mb-1">??</div>
         <p class="font-bold text-sm text-gray-800">Adotante</p>
         <p class="text-xs text-gray-500 mt-0.5">Quero adotar</p>
       </div>
       <div class="mode-card" onclick="selectMode('tutor', this)">
-        <div class="text-2xl mb-1">📢</div>
+        <div class="text-2xl mb-1">??</div>
         <p class="font-bold text-sm text-gray-800">Tutor</p>
         <p class="text-xs text-gray-500 mt-0.5">Tenho pets</p>
+      </div>
+      <div class="mode-card" onclick="selectMode('ong', this)">
+        <div class="text-2xl mb-1">??</div>
+        <p class="font-bold text-sm text-gray-800">ONG</p>
+        <p class="text-xs text-gray-500 mt-0.5">Resgate animal</p>
       </div>
     </div>
 
@@ -187,25 +192,25 @@
         onkeydown="if(event.key==='Enter') entrar()"
         autofocus
       >
-      <p id="erroNome" class="hidden text-xs text-red-500 mt-1.5">⚠️ Por favor, informe seu nome.</p>
+      <p id="erroNome" class="hidden text-xs text-red-500 mt-1.5">âš ï¸ Por favor, informe seu nome.</p>
     </div>
 
     <!-- Enter button -->
     <button class="btn-primary mb-4" onclick="entrar()">
-      🐾 Entrar no PetSocial
+      ðŸ¾ Entrar no PetSocial
     </button>
 
     <div class="divider mb-4">ou</div>
 
     <!-- Admin -->
     <button class="btn-admin" onclick="entrarAdmin()">
-      🛡️ Modo Administrador
+      ðŸ›¡ï¸ Modo Administrador
     </button>
 
     <!-- Footer info -->
     <p class="text-center text-xs text-gray-400 mt-6">
-      Ao entrar, você aceita os termos de uso. <br>
-      <a href="landing.html" class="text-pink-500 hover:underline">Ver a landing page →</a>
+      Ao entrar, vocÃª aceita os termos de uso. <br>
+      <a href="landing.html" class="text-pink-500 hover:underline">Ver a landing page â†’</a>
     </p>
 
   </div>
@@ -213,7 +218,7 @@
   <script>
     // --- Floating paws ---
     const container = document.getElementById('paws');
-    ['🐾','🐶','🐱','❤️'].forEach(em => {
+    ['ðŸ¾','ðŸ¶','ðŸ±','â¤ï¸'].forEach(em => {
       for(let i = 0; i < 4; i++){
         const el = document.createElement('span');
         el.className = 'paw';
@@ -265,3 +270,4 @@
   </script>
 </body>
 </html>
+
