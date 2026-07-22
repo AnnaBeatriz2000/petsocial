@@ -3,232 +3,361 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entrar – PetSocial 🐾</title>
+  <title>Entrar – PetSocial</title>
   <script src="https://cdn.tailwindcss.com"><\/script>
   <script src="https://accounts.google.com/gsi/client" async><\/script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-    * { font-family: 'Inter', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
 
-    body {
-      background: linear-gradient(135deg, #1a0533 0%, #3b0764 40%, #831843 100%);
-      min-height: 100vh;
+    /* ---- HERO SIDE ---- */
+    .hero-side {
+      background: linear-gradient(160deg, #1e0040 0%, #4c0082 40%, #9d0059 80%, #c2185b 100%);
+      position: relative; overflow: hidden;
     }
-    .paw {
-      position: fixed; font-size: 1.5rem; opacity: 0.07;
-      animation: floatPaw linear infinite; pointer-events: none; z-index: 0;
+    .hero-side::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(255,100,200,0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.3) 0%, transparent 50%);
     }
-    @keyframes floatPaw {
-      0%   { transform: translateY(110vh) rotate(0deg);  opacity: 0; }
-      10%  { opacity: 0.07; }
-      90%  { opacity: 0.07; }
-      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+
+    /* Floating blobs */
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(60px); opacity: 0.35;
+      animation: blobFloat 8s ease-in-out infinite alternate;
     }
-    .login-card {
-      animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .blob-1 { width:280px;height:280px; background:#f472b6; top:-80px; left:-60px; animation-delay:0s; }
+    .blob-2 { width:200px;height:200px; background:#a855f7; bottom:40px; right:-40px; animation-delay:-3s; }
+    .blob-3 { width:150px;height:150px; background:#ec4899; top:40%; left:55%; animation-delay:-5s; }
+    @keyframes blobFloat {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(20px,30px) scale(1.1); }
     }
-    @keyframes cardIn {
-      from { opacity: 0; transform: scale(0.9) translateY(20px); }
-      to   { opacity: 1; transform: scale(1)   translateY(0); }
+
+    /* Paw grid */
+    .paw-grid {
+      position: absolute; inset: 0;
+      display: grid; grid-template-columns: repeat(6, 1fr);
+      gap: 0; opacity: 0.07; pointer-events: none;
+      overflow: hidden;
     }
+    .paw-grid span {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      animation: pawPulse 4s ease-in-out infinite;
+    }
+    .paw-grid span:nth-child(odd) { animation-delay: -2s; }
+    @keyframes pawPulse {
+      0%,100% { opacity:0.6; transform: scale(1); }
+      50%      { opacity:1;   transform: scale(1.2) rotate(10deg); }
+    }
+
+    /* Pet cards on hero */
+    .pet-bubble {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 14px 18px;
+      color: white;
+      animation: bubbleFloat 6s ease-in-out infinite alternate;
+    }
+    .pet-bubble:nth-child(2) { animation-delay: -2s; }
+    .pet-bubble:nth-child(3) { animation-delay: -4s; }
+    @keyframes bubbleFloat {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-12px); }
+    }
+
+    /* Stats badge */
+    .stat-badge {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 50px; padding: 8px 18px;
+      color: white; font-size: 13px; font-weight: 700;
+    }
+
+    /* ---- FORM SIDE ---- */
+    .form-side { background: #fafafa; }
+
     .gradient-text {
-      background: linear-gradient(135deg, #f472b6, #a855f7);
+      background: linear-gradient(135deg, #ec4899, #a855f7, #6366f1);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+
+    /* Mode cards */
+    .mode-card {
+      cursor: pointer;
+      border: 2px solid #e5e7eb; border-radius: 16px;
+      padding: 16px 12px; transition: all 0.2s; text-align: center;
+      background: white;
+    }
+    .mode-card:hover {
+      border-color: #ec4899; background: #fff0f8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(236,72,153,0.15);
+    }
+    .mode-card.selected {
+      border-color: #ec4899;
+      background: linear-gradient(135deg, #fff0f8, #fce7f3);
+      box-shadow: 0 0 0 4px rgba(236,72,153,0.12), 0 8px 20px rgba(236,72,153,0.15);
+      transform: translateY(-2px);
+    }
+    .mode-card .icon-wrap {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin: 0 auto 8px;
+      background: #f3f4f6; transition: background 0.2s;
+    }
+    .mode-card.selected .icon-wrap { background: #fce7f3; }
+
+    /* Input */
     .pet-input {
-      width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb;
-      border-radius: 12px; font-size: 14px; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      width: 100%; padding: 13px 16px;
+      border: 2px solid #e5e7eb; border-radius: 14px;
+      font-size: 14px; outline: none; background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .pet-input:focus {
       border-color: #ec4899;
-      box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15);
-      transform: scale(1.01);
+      box-shadow: 0 0 0 4px rgba(236,72,153,0.12);
     }
-    .mode-card {
-      cursor: pointer; border: 2px solid #e5e7eb; border-radius: 14px;
-      padding: 16px; transition: all 0.2s; text-align: center;
-    }
-    .mode-card:hover { border-color: #ec4899; background: #fdf2f8; }
-    .mode-card.selected {
-      border-color: #ec4899;
-      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
-      box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
-    }
+
+    /* Buttons */
     .btn-primary {
       width: 100%; padding: 14px;
       background: linear-gradient(135deg, #ec4899, #a855f7);
       color: white; font-weight: 800; font-size: 15px;
       border-radius: 14px; border: none; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-      position: relative; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(236, 72, 153, 0.5);
+      box-shadow: 0 12px 30px rgba(168,85,247,0.45);
     }
     .btn-primary:active { transform: translateY(0); }
-    .btn-primary::after {
-      content: ''; position: absolute; inset: 0;
-      background: rgba(255,255,255,0.15); opacity: 0; transition: opacity 0.2s;
-    }
-    .btn-primary:hover::after { opacity: 1; }
 
-    /* Google button custom wrapper */
     .btn-google {
       width: 100%; padding: 12px 16px;
-      background: #fff; color: #3c4043;
+      background: white; color: #3c4043;
       font-weight: 600; font-size: 14px;
       border-radius: 14px; border: 2px solid #e5e7eb; cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 10px;
     }
     .btn-google:hover {
-      background: #f8f8f8;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background: #f9f9f9;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       transform: translateY(-1px);
     }
     .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-    /* Google user badge (shown after sign-in) */
-    .google-badge {
-      display: none; align-items: center; gap-10px;
-      background: #f0fdf4; border: 2px solid #86efac;
-      border-radius: 14px; padding: 12px 16px;
-    }
-    .google-badge.active { display: flex; }
-
     .btn-admin {
-      width: 100%; padding: 12px;
+      width: 100%; padding: 11px;
       background: #111827; color: #9ca3af;
       font-weight: 700; font-size: 13px;
       border-radius: 12px; border: none; cursor: pointer;
       transition: background 0.2s, color 0.2s;
     }
-    .btn-admin:hover { background: #1f2937; color: #f3f4f6; }
+    .btn-admin:hover { background: #1f2937; color: white; }
 
     .divider {
-      display: flex; align-items: center;
-      gap: 12px; color: #9ca3af; font-size: 12px;
+      display: flex; align-items: center; gap: 12px;
+      color: #9ca3af; font-size: 12px; font-weight: 500;
     }
     .divider::before, .divider::after {
       content: ''; flex: 1; height: 1px; background: #e5e7eb;
     }
 
-    /* Google one-tap container override */
-    #g_id_onload { position: absolute; }
+    /* Google badge */
+    .google-badge {
+      display: none; align-items: center; gap: 12px;
+      background: #f0fdf4; border: 2px solid #86efac;
+      border-radius: 14px; padding: 12px 16px;
+    }
+    .google-badge.active { display: flex; }
+
+    /* Card slide-in */
+    .form-inner {
+      animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(24px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    /* Mobile: stack vertically */
+    @media (max-width: 768px) {
+      .hero-side { display: none; }
+      .form-side { min-height: 100vh; background: linear-gradient(160deg,#1e0040,#4c0082,#9d0059); }
+      .form-inner-wrap { background: white; border-radius: 28px 28px 0 0; margin-top: auto; }
+    }
   </style>
 </head>
-<body class="flex items-center justify-center p-4 relative">
+<body class="min-h-screen flex">
 
-  <div id="paws"></div>
+  <!-- LEFT: Hero -->
+  <div class="hero-side hidden md:flex flex-col justify-between w-1/2 p-12 relative">
+    <!-- Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-  <a href="landing.html" class="fixed top-5 left-5 z-50 flex items-center gap-2 text-white/70 hover:text-white text-sm font-semibold transition">
-    ← Voltar
-  </a>
+    <!-- Paw grid background -->
+    <div class="paw-grid">
+      <span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span>
+    </div>
+
+    <!-- Top logo -->
+    <div class="relative z-10">
+      <a href="landing.html" class="flex items-center gap-3 text-white font-black text-2xl no-underline">
+        <span class="text-4xl">🐾</span>
+        <span>PetSocial</span>
+      </a>
+      <p class="text-white/60 text-sm mt-1 ml-1">Conectando pets e famílias</p>
+    </div>
+
+    <!-- Center content -->
+    <div class="relative z-10 flex flex-col gap-5">
+      <h2 class="text-white font-black text-4xl leading-tight">
+        Encontre seu<br>
+        <span style="color:#f9a8d4">companheiro</span><br>
+        perfeito 🐾
+      </h2>
+      <p class="text-white/70 text-base leading-relaxed max-w-xs">
+        Adote, resgate e conecte-se com tutores e ONGs que cuidam de animais como você.
+      </p>
+
+      <!-- Pet bubbles -->
+      <div class="flex gap-4 mt-2">
+        <div class="pet-bubble text-center">
+          <div class="text-3xl mb-1">🐶</div>
+          <p class="text-xs font-semibold text-white/80">Cachorros</p>
+        </div>
+        <div class="pet-bubble text-center">
+          <div class="text-3xl mb-1">🐱</div>
+          <p class="text-xs font-semibold text-white/80">Gatos</p>
+        </div>
+        <div class="pet-bubble text-center">
+          <div class="text-3xl mb-1">🐰</div>
+          <p class="text-xs font-semibold text-white/80">Outros</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom stats -->
+    <div class="relative z-10 flex flex-wrap gap-3">
+      <div class="stat-badge">❤️ +2.400 adoções</div>
+      <div class="stat-badge">🏥 120 ONGs</div>
+      <div class="stat-badge">🐾 800 pets disponíveis</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Form -->
+  <div class="form-side flex-1 flex items-center justify-center p-6 md:p-12 overflow-y-auto">
+    <div class="form-inner w-full max-w-md">
+
+      <!-- Mobile logo -->
+      <div class="md:hidden text-center mb-8">
+        <div class="text-5xl mb-2">🐾</div>
+        <h1 class="text-3xl font-black gradient-text">PetSocial</h1>
+      </div>
+
+      <h2 class="text-2xl font-black text-gray-900 mb-1">Bem-vindo de volta! 👋</h2>
+      <p class="text-gray-500 text-sm mb-8">Escolha como quer entrar e vamos lá</p>
+
+      <!-- Google badge (after google login) -->
+      <div id="googleBadge" class="google-badge mb-5">
+        <img id="googleAvatar" src="" class="w-10 h-10 rounded-full border-2 border-green-300" alt="">
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-green-800 text-sm" id="googleName"></p>
+          <p class="text-green-600 text-xs truncate" id="googleEmail"></p>
+        </div>
+        <button onclick="deslogarGoogle()" class="text-xs text-red-400 hover:text-red-600 font-semibold whitespace-nowrap">Trocar conta</button>
+      </div>
+
+      <!-- Mode selector -->
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Tipo de conta</p>
+      <div class="grid grid-cols-3 gap-3 mb-6" id="modeSelector">
+        <div class="mode-card selected" onclick="selectMode('adotante', this)">
+          <div class="icon-wrap">🏠</div>
+          <p class="font-bold text-sm text-gray-800">Adotante</p>
+          <p class="text-xs text-gray-400 mt-0.5">Quero adotar</p>
+        </div>
+        <div class="mode-card" onclick="selectMode('tutor', this)">
+          <div class="icon-wrap">💖</div>
+          <p class="font-bold text-sm text-gray-800">Tutor</p>
+          <p class="text-xs text-gray-400 mt-0.5">Tenho pets</p>
+        </div>
+        <div class="mode-card" onclick="selectMode('ong', this)">
+          <div class="icon-wrap">🏥</div>
+          <p class="font-bold text-sm text-gray-800">ONG</p>
+          <p class="text-xs text-gray-400 mt-0.5">Resgate animal</p>
+        </div>
+      </div>
+
+      <!-- Name input -->
+      <div class="mb-5" id="nomeSection">
+        <label class="block text-sm font-bold text-gray-700 mb-1.5">
+          Seu nome
+        </label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">👤</span>
+          <input id="nomeInput" type="text"
+            placeholder="Ex: Maria Silva"
+            class="pet-input pl-11"
+            onkeydown="if(event.key==='Enter') entrar()"
+            autofocus>
+        </div>
+        <p id="erroNome" class="hidden text-xs text-red-500 mt-1.5 flex items-center gap-1">
+          ⚠️ Por favor, informe seu nome.
+        </p>
+      </div>
+
+      <!-- Enter button -->
+      <button class="btn-primary mb-4" onclick="entrar()">
+        <span>🐾</span> Entrar no PetSocial
+      </button>
+
+      <div class="divider mb-4">ou continue com</div>
+
+      <!-- Google -->
+      <button class="btn-google mb-5" id="btnGoogle" onclick="iniciarGoogleLogin()">
+        <svg viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+          <path fill="#4CAF50" d="M24 44c5.2 0 10-1.9 13.6-5l-6.3-5.3C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
+          <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.3 5.3C41.3 35.9 44 30.4 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+        <\/svg>
+        Continuar com Google
+      </button>
+
+      <div class="divider mb-4">ou</div>
+
+      <button class="btn-admin" onclick="entrarAdmin()">
+        🛡️ Modo Administrador
+      </button>
+
+      <p class="text-center text-xs text-gray-400 mt-6">
+        Ao entrar, você aceita nossos termos de uso.<br>
+        <a href="landing.html" class="text-pink-500 hover:underline font-semibold">← Voltar para a landing page</a>
+      </p>
+
+    </div>
+  </div>
 
   <!-- Google One Tap -->
   <div id="g_id_onload"
     data-client_id="SEU_CLIENT_ID_AQUI.apps.googleusercontent.com"
     data-callback="handleGoogleCredential"
-    data-auto_prompt="false">
-  </div>
-
-  <div class="login-card relative z-10 bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-
-    <div class="text-center mb-8">
-      <div class="text-5xl mb-3">🐾</div>
-      <h1 class="text-3xl font-black gradient-text">PetSocial</h1>
-      <p class="text-gray-500 text-sm mt-1">Conectando pets e famílias</p>
-    </div>
-
-    <!-- Google badge (shown after google login) -->
-    <div id="googleBadge" class="google-badge gap-3 mb-6">
-      <img id="googleAvatar" src="" class="w-10 h-10 rounded-full border-2 border-green-300" alt="">
-      <div class="flex-1 min-w-0">
-        <p class="font-bold text-green-800 text-sm" id="googleName"></p>
-        <p class="text-green-600 text-xs truncate" id="googleEmail"></p>
-      </div>
-      <button onclick="deslogarGoogle()" class="text-xs text-red-400 hover:text-red-600 font-semibold">Sair</button>
-    </div>
-
-    <!-- Mode selector -->
-    <p class="text-sm font-bold text-gray-700 mb-3">Como você quer entrar?</p>
-    <div class="grid grid-cols-3 gap-3 mb-6" id="modeSelector">
-      <div class="mode-card selected" onclick="selectMode('adotante', this)">
-        <div class="text-2xl mb-1">🏠</div>
-        <p class="font-bold text-sm text-gray-800">Adotante</p>
-        <p class="text-xs text-gray-500 mt-0.5">Quero adotar</p>
-      </div>
-      <div class="mode-card" onclick="selectMode('tutor', this)">
-        <div class="text-2xl mb-1">💖</div>
-        <p class="font-bold text-sm text-gray-800">Tutor</p>
-        <p class="text-xs text-gray-500 mt-0.5">Tenho pets</p>
-      </div>
-      <div class="mode-card" onclick="selectMode('ong', this)">
-        <div class="text-2xl mb-1">🏥</div>
-        <p class="font-bold text-sm text-gray-800">ONG</p>
-        <p class="text-xs text-gray-500 mt-0.5">Resgate animal</p>
-      </div>
-    </div>
-
-    <!-- Name input -->
-    <div class="mb-4" id="nomeSection">
-      <label class="block text-sm font-bold text-gray-700 mb-1.5" for="nomeInput">Seu nome</label>
-      <input id="nomeInput" type="text" placeholder="Ex: Maria Silva" class="pet-input"
-        onkeydown="if(event.key==='Enter') entrar()" autofocus>
-      <p id="erroNome" class="hidden text-xs text-red-500 mt-1.5">⚠️ Por favor, informe seu nome.</p>
-    </div>
-
-    <!-- Main enter button -->
-    <button class="btn-primary mb-4" onclick="entrar()">
-      🐾 Entrar no PetSocial
-    </button>
-
-    <div class="divider mb-4">ou entre com</div>
-
-    <!-- Google Sign-In button -->
-    <button class="btn-google mb-4" id="btnGoogle" onclick="iniciarGoogleLogin()">
-      <svg viewBox="0 0 48 48">
-        <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
-        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-        <path fill="#4CAF50" d="M24 44c5.2 0 10-1.9 13.6-5l-6.3-5.3C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/>
-        <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.3 5.3C41.3 35.9 44 30.4 44 24c0-1.3-.1-2.6-.4-3.9z"/>
-      </svg>
-      Continuar com Google
-    </button>
-
-    <div class="divider mb-4">ou</div>
-
-    <button class="btn-admin" onclick="entrarAdmin()">
-      🛡️ Modo Administrador
-    </button>
-
-    <p class="text-center text-xs text-gray-400 mt-6">
-      Ao entrar, você aceita os termos de uso. <br>
-      <a href="landing.html" class="text-pink-500 hover:underline">Ver a landing page →</a>
-    </p>
-
+    data-auto_prompt="false"
+    style="position:absolute">
   </div>
 
   <script>
-    // --- Floating paws ---
-    const container = document.getElementById('paws');
-    ['🐾','🐶','🐱','❤️'].forEach(em => {
-      for(let i = 0; i < 4; i++){
-        const el = document.createElement('span');
-        el.className = 'paw';
-        el.textContent = em;
-        el.style.left = (Math.random() * 100) + 'vw';
-        el.style.bottom = '-10vh';
-        el.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
-        el.style.animationDuration = (10 + Math.random() * 15) + 's';
-        el.style.animationDelay = (Math.random() * 15) + 's';
-        container.appendChild(el);
-      }
-    });
-
-    // --- Mode selection ---
     let selectedMode = 'adotante';
     let googleUser = null;
 
@@ -238,13 +367,8 @@
       el.classList.add('selected');
     }
 
-    // --- Manual login ---
     function entrar() {
-      let nome = document.getElementById('nomeInput').value.trim();
-
-      // If Google user is signed in, use their name
-      if (googleUser) nome = googleUser.name;
-
+      let nome = googleUser ? googleUser.name : document.getElementById('nomeInput').value.trim();
       const erroEl = document.getElementById('erroNome');
       if (!nome) {
         erroEl.classList.remove('hidden');
@@ -252,7 +376,6 @@
         return;
       }
       erroEl.classList.add('hidden');
-
       sessionStorage.setItem('ps_user', nome);
       sessionStorage.setItem('ps_tipo', selectedMode);
       if (googleUser) {
@@ -269,36 +392,23 @@
       window.location.href = 'petsocial.html?user=' + encodeURIComponent(nome) + '&tipo=admin';
     }
 
-    // --- Google Sign-In ---
     function iniciarGoogleLogin() {
       const clientId = document.getElementById('g_id_onload').dataset.clientId;
       if (!clientId || clientId.includes('SEU_CLIENT_ID')) {
-        // Demo mode: simulate Google login with a fake user
-        const fakeUser = {
+        mostrarUsuarioGoogle({
           name: 'Usuário Google',
           email: 'usuario@gmail.com',
-          picture: 'https://ui-avatars.com/api/?name=Google+User&background=4285F4&color=fff&rounded=true'
-        };
-        mostrarUsuarioGoogle(fakeUser);
+          picture: 'https://ui-avatars.com/api/?name=Google+User&background=4285F4&color=fff&rounded=true&size=80'
+        });
         return;
       }
-      // Real Google sign-in via One Tap or button
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleGoogleCredential
-      });
+      google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredential });
       google.accounts.id.prompt();
     }
 
     function handleGoogleCredential(response) {
-      // Decode JWT payload
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      const user = {
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-      };
-      mostrarUsuarioGoogle(user);
+      const p = JSON.parse(atob(response.credential.split('.')[1]));
+      mostrarUsuarioGoogle({ name: p.name, email: p.email, picture: p.picture });
     }
 
     function mostrarUsuarioGoogle(user) {
@@ -308,10 +418,9 @@
       document.getElementById('googleAvatar').src = user.picture;
       document.getElementById('googleBadge').classList.add('active');
       document.getElementById('nomeInput').value = user.name;
-      document.getElementById('nomeSection').style.opacity = '0.4';
-      document.getElementById('btnGoogle').textContent = '✅ Conectado com Google';
-      document.getElementById('btnGoogle').style.borderColor = '#86efac';
-      document.getElementById('btnGoogle').style.background = '#f0fdf4';
+      document.getElementById('nomeSection').style.opacity = '0.5';
+      document.getElementById('btnGoogle').innerHTML = '✅ Conectado com Google ? clique em Entrar';
+      document.getElementById('btnGoogle').style.cssText = 'width:100%;padding:12px 16px;border:2px solid #86efac;border-radius:14px;background:#f0fdf4;color:#166534;font-weight:700;font-size:14px;cursor:default;display:flex;align-items:center;justify-content:center;';
     }
 
     function deslogarGoogle() {
@@ -319,9 +428,10 @@
       document.getElementById('googleBadge').classList.remove('active');
       document.getElementById('nomeInput').value = '';
       document.getElementById('nomeSection').style.opacity = '1';
-      document.getElementById('btnGoogle').innerHTML = '<svg viewBox="0 0 48 48" style="width:20px;height:20px"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-1.9 13.6-5l-6.3-5.3C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.3 5.3C41.3 35.9 44 30.4 44 24c0-1.3-.1-2.6-.4-3.9z"/><\/svg> Continuar com Google';
-      document.getElementById('btnGoogle').style.borderColor = '#e5e7eb';
-      document.getElementById('btnGoogle').style.background = '#fff';
+      document.getElementById('btnGoogle').style.cssText = '';
+      document.getElementById('btnGoogle').className = 'btn-google mb-5';
+      document.getElementById('btnGoogle').onclick = iniciarGoogleLogin;
+      document.getElementById('btnGoogle').innerHTML = `<svg viewBox="0 0 48 48" style="width:20px;height:20px"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10-1.9 13.6-5l-6.3-5.3C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.3 5.3C41.3 35.9 44 30.4 44 24c0-1.3-.1-2.6-.4-3.9z"/><\/svg> Continuar com Google`;
     }
   <\/script>
 </body>
