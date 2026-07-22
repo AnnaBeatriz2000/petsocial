@@ -1,0 +1,38 @@
+function renderStories() {
+  const container = document.getElementById("storiesFeed");
+
+  // Se não houver nenhum pet/story para listar, esconde o container
+  if (!stories || stories.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+      <h3 class="font-bold text-sm text-gray-700 mb-3 flex items-center gap-1.5">
+        📸 Histórias de Resgate
+      </h3>
+
+      <!-- Container com rolagem horizontal suave -->
+      <div class="flex gap-4 overflow-x-auto pb-1 scrollbar-none snap-x">
+        ${stories.map(s => `
+          <div class="flex flex-col items-center gap-1.5 cursor-pointer snap-start min-w-[70px]" onclick="verStory(${s.id_pet || s.id})">
+            <!-- Círculo do Story com gradiente ativo -->
+            <div class="w-14 h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-pink-500 to-amber-400 hover:scale-105 transition duration-200">
+              <img 
+                src="${s.url_foto || s.foto}" 
+                alt="${s.nome}"
+                class="w-full h-full object-cover rounded-full border-2 border-white"
+                onerror="this.src='https://placehold.co/100?text=🐾'"
+              />
+            </div>
+            <!-- Nome do Pet -->
+            <span class="text-[11px] font-medium text-gray-600 truncate w-16 text-center">
+              ${s.nome}
+            </span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
