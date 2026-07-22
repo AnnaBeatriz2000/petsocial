@@ -63,6 +63,105 @@ body { transition: all 0.3s ease }
 .badge-adotado { background: #fce7f3; color: #831843; }
 
 .badge-status:hover { transform: scale(1.1); }
+
+/* ===== IMPROVED FEED CARDS ===== */
+.pet-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: cardIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.pet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(236,72,153,0.18);
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(24px) scale(0.97); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+.pet-card .card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+}
+.pet-card .card-img-wrap img {
+  width:100%; height:100%; object-fit:cover;
+  transition: transform 0.4s ease;
+}
+.pet-card:hover .card-img-wrap img {
+  transform: scale(1.07);
+}
+.pet-card .card-img-wrap .status-pill {
+  position: absolute;
+  top: 12px; right: 12px;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 12px; border-radius: 20px;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+.pet-card .card-img-wrap .tutor-pill {
+  position: absolute;
+  bottom: 10px; left: 12px;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  font-size: 10px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+.pet-card .card-body { padding: 16px; }
+.pet-card .card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+.card-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.card-btn-adopt {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: white;
+  box-shadow: 0 4px 14px rgba(236,72,153,0.35);
+}
+.card-btn-adopt:hover { opacity:0.9; transform:translateY(-1px); }
+.card-btn-like {
+  background: #fdf2f8;
+  color: #ec4899;
+  border: 1.5px solid #fce7f3;
+}
+.card-btn-like:hover { background: #fce7f3; }
+.card-btn-save {
+  background: #fefce8;
+  color: #ca8a04;
+  border: 1.5px solid #fef9c3;
+}
+.card-btn-save:hover { background: #fef9c3; }
+/* stagger */
+.pet-card:nth-child(1){animation-delay:0s}
+.pet-card:nth-child(2){animation-delay:.08s}
+.pet-card:nth-child(3){animation-delay:.16s}
+.pet-card:nth-child(4){animation-delay:.24s}
+.pet-card:nth-child(5){animation-delay:.32s}
+.pet-card:nth-child(n+6){animation-delay:.4s}
+/* Empty state */
+.empty-feed {
+  text-align: center;
+  padding: 48px 24px;
+  background: white;
+  border-radius: 20px;
+  border: 2px dashed #e2e8f0;
+  color: #94a3b8;
+}
+
 </style>
  
 </head>
@@ -223,7 +322,7 @@ body { transition: all 0.3s ease }
 </div>
 </div>
  
-    <div id="feed" class="space-y-4"></div>
+    <div id="feed" class="grid grid-cols-1 gap-5"></div>
  
   </div>
  
@@ -256,6 +355,7 @@ let searchResults = []
  
 let filtroIdade = 'Todos'
 let filtroPorte = 'Todos'
+let buscaAtiva = ''
  
 let syncAtivo = false
  
@@ -427,55 +527,69 @@ function renderStories(){
 // ==========================
 function renderFeed(){
   const f = document.getElementById("feed")
- 
-  const filtrados = posts.filter(p => {
+
+  let filtrados = posts.filter(p => {
+    const buscaTermo = buscaAtiva ? p.nome.toLowerCase().includes(buscaAtiva.toLowerCase()) : true
     return (filtroIdade === 'Todos' || p.idade === filtroIdade) &&
-           (filtroPorte === 'Todos' || p.porte === filtroPorte)
+           (filtroPorte === 'Todos' || p.porte === filtroPorte) &&
+           buscaTermo
   })
- 
+
   if(filtrados.length === 0){
-    f.innerHTML = `<p>Nenhum pet encontrado</p>`
+    f.innerHTML = `
+    <div class="empty-feed">
+      <div style="font-size:3rem;margin-bottom:12px">??</div>
+      <p class="font-bold text-slate-500 text-lg mb-1">Nenhum pet encontrado</p>
+      <p class="text-sm">Tente outros filtros ou seja o primeiro a cadastrar!</p>
+    </div>`
     return
   }
- 
+
   let html = ""
- 
+
   filtrados.forEach(p => {
     const jaCurtiu = p.likes.includes(usuario.id)
     const statusLabel = getStatusLabel(p.statusAdocao || 'disponivel')
- 
+    const statusClass = {
+      'disponivel': 'badge-disponivel',
+      'em-processo': 'badge-em-processo',
+      'adotado': 'badge-adotado'
+    }[p.statusAdocao || 'disponivel']
+
     html += `
-    <div class="bg-white p-4 rounded mb-3 fade-in">
-      <img src="${p.foto}" class="w-full h-56 object-cover rounded mb-3">
-      <div class="flex justify-between items-start mb-2">
-        <div>
-          <h4 class="font-bold text-slate-700">${p.nome}</h4>
-          <p class="text-xs text-slate-600">Idade: ${p.idade} | Porte: ${p.porte}</p>
-        </div>
-        <span class="badge-status badge-${p.statusAdocao || 'disponivel'}" onclick="mudarStatus(${p.id})" title="Clique para alterar status">
+    <div class="pet-card">
+      <div class="card-img-wrap">
+        <img src="${p.foto}" alt="${p.nome}" loading="lazy">
+        <span class="status-pill badge-status ${statusClass}" onclick="mudarStatus(${p.id})" title="Clique para alterar status">
           ${statusLabel}
         </span>
+        <span class="tutor-pill">?? ${p.tutorNome}</span>
       </div>
-      <p class="text-sm mb-2">${p.desc}</p>
-      <small class="text-slate-500">Por ${p.tutorNome}</small>
- 
-      <div class="flex gap-2 mt-3">
-        <button onclick="curtir(${p.id})" class="text-sm font-bold hover:text-pink-500">
-          ${jaCurtiu ? "❤️" : "🤍"} ${p.likes.length}
+      <div class="card-body">
+        <div class="flex justify-between items-start mb-1">
+          <h4 class="font-black text-slate-800 text-base">${p.nome}</h4>
+          <div class="flex gap-1 text-xs">
+            <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">${p.idade}</span>
+            <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">${p.porte}</span>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed line-clamp-2">${p.desc}</p>
+      </div>
+      <div class="card-actions">
+        <button class="card-btn card-btn-like" onclick="curtir(${p.id})">
+          ${jaCurtiu ? "??" : "??"} ${p.likes.length}
         </button>
-
-        <button onclick="favoritar(${p.id})" class="text-sm font-bold hover:text-yellow-500">
-          ${isFavorito(p.id) ? "⭐" : "☆"} Salvar
+        <button class="card-btn card-btn-save" onclick="favoritar(${p.id})">
+          ${isFavorito(p.id) ? "?" : "?"}
         </button>
- 
-        <button onclick="interessarAdocao(${p.id}, '${p.nome}', ${p.tutorId}, '${p.tutorNome}')" class="text-sm font-bold text-pink-500 hover:text-pink-600">
-          🐾 Adotar
+        <button class="card-btn card-btn-adopt" onclick="interessarAdocao(${p.id}, '${p.nome}', ${p.tutorId}, '${p.tutorNome}')">
+          ?? Adotar
         </button>
       </div>
     </div>
     `
   })
- 
+
   f.innerHTML = html
 }
  
@@ -655,56 +769,8 @@ function updateAdminPanel(){
 // BUSCA DE PETS
 // ==========================
 function buscarPet(){
-  const termo = document.getElementById("searchPet").value.toLowerCase().trim()
-  
-  if(!termo){
-    renderFeed()
-    return
-  }
-  
-  searchResults = posts.filter(p => p.nome.toLowerCase().includes(termo))
-  
-  const f = document.getElementById("feed")
-  if(searchResults.length === 0){
-    f.innerHTML = `<p class="text-slate-500">Nenhum pet encontrado com "${termo}"</p>`
-    return
-  }
-  
-  let html = ""
-  searchResults.forEach(p => {
-    const jaCurtiu = p.likes.includes(usuario.id)
-    const statusLabel = getStatusLabel(p.statusAdocao || 'disponivel')
-    
-    html += `
-    <div class="bg-white p-4 rounded mb-3 fade-in border-l-4 border-blue-500">
-      <img src="${p.foto}" class="w-full h-56 object-cover rounded mb-3">
-      <div class="flex justify-between items-start mb-2">
-        <div>
-          <h4 class="font-bold text-slate-700">${p.nome}</h4>
-          <p class="text-xs text-slate-600">Idade: ${p.idade} | Porte: ${p.porte}</p>
-        </div>
-        <span class="badge-status badge-${p.statusAdocao || 'disponivel'}" onclick="mudarStatus(${p.id})" title="Clique para alterar status">
-          ${statusLabel}
-        </span>
-      </div>
-      <p class="text-sm mb-2">${p.desc}</p>
-      <small class="text-slate-500">Por ${p.tutorNome}</small>
-      
-      <div class="flex gap-2 mt-3">
-        <button onclick="curtir(${p.id})" class="text-sm font-bold hover:text-pink-500">
-          ${jaCurtiu ? "❤️" : "🤍"} ${p.likes.length}
-        </button>
-        <button onclick="favoritar(${p.id})" class="text-sm font-bold hover:text-yellow-500">
-          ${isFavorito(p.id) ? "⭐" : "☆"} Salvar
-        </button>
-        <button onclick="interessarAdocao(${p.id}, '${p.nome}', ${p.tutorId}, '${p.tutorNome}')" class="text-sm font-bold text-pink-500 hover:text-pink-600">
-          🐾 Adotar
-        </button>
-      </div>
-    </div>
-    `
-  })
-  f.innerHTML = html
+  buscaAtiva = document.getElementById("searchPet").value.trim()
+  renderFeed()
 }
 
 // ==========================
