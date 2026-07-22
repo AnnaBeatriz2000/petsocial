@@ -115,6 +115,77 @@
     .status-disponivel { background: #dcfce7; color: #166534; }
     .status-processo   { background: #fef3c7; color: #92400e; }
     .status-adotado    { background: #fce7f3; color: #831843; }
+
+    /* Running animals strip */
+    .animals-strip {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a0533, #3b0764);
+      padding: 0;
+      height: 80px;
+      display: flex;
+      align-items: center;
+    }
+    .runner {
+      position: absolute;
+      font-size: 2.2rem;
+      animation: runRight linear infinite;
+      white-space: nowrap;
+      filter: drop-shadow(0 0 8px rgba(236,72,153,0.6));
+    }
+    .runner.left {
+      animation: runLeft linear infinite;
+    }
+    /* bounce body while running */
+    .runner { animation-timing-function: linear; }
+    @keyframes runRight {
+      0%   { left: -80px; transform: scaleX(1)  translateY(0px); }
+      10%  { transform: scaleX(1) translateY(-8px); }
+      20%  { transform: scaleX(1) translateY(0px); }
+      30%  { transform: scaleX(1) translateY(-8px); }
+      40%  { transform: scaleX(1) translateY(0px); }
+      50%  { transform: scaleX(1) translateY(-8px); }
+      60%  { transform: scaleX(1) translateY(0px); }
+      70%  { transform: scaleX(1) translateY(-8px); }
+      80%  { transform: scaleX(1) translateY(0px); }
+      90%  { transform: scaleX(1) translateY(-8px); }
+      100% { left: calc(100% + 80px); transform: scaleX(1) translateY(0px); }
+    }
+    @keyframes runLeft {
+      0%   { right: -80px; left: auto; transform: scaleX(-1) translateY(0px); }
+      10%  { transform: scaleX(-1) translateY(-8px); }
+      20%  { transform: scaleX(-1) translateY(0px); }
+      30%  { transform: scaleX(-1) translateY(-8px); }
+      40%  { transform: scaleX(-1) translateY(0px); }
+      50%  { transform: scaleX(-1) translateY(-8px); }
+      60%  { transform: scaleX(-1) translateY(0px); }
+      70%  { transform: scaleX(-1) translateY(-8px); }
+      80%  { transform: scaleX(-1) translateY(0px); }
+      90%  { transform: scaleX(-1) translateY(-8px); }
+      100% { right: calc(100% + 80px); left: auto; transform: scaleX(-1) translateY(0px); }
+    }
+    /* Track label */
+    .track-label {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    /* Ground line */
+    .animals-strip::after {
+      content: '';
+      position: absolute;
+      bottom: 18px;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(236,72,153,0.4), rgba(168,85,247,0.4), transparent);
+    }
   </style>
 </head>
 <body class="bg-white overflow-x-hidden">
@@ -184,6 +255,25 @@
       </div>
     </div>
   </section>
+
+
+  <!-- Running Animals Strip -->
+  <div class="animals-strip" id="animalsStrip">
+    <!-- Dogs running right -->
+    <span class="runner" style="animation-duration:7s;  animation-delay:0s;   top:12px;">??</span>
+    <span class="runner" style="animation-duration:9s;  animation-delay:2s;   top:20px;">??</span>
+    <span class="runner" style="animation-duration:6s;  animation-delay:4s;   top:10px;">?????</span>
+    <span class="runner" style="animation-duration:11s; animation-delay:1s;   top:18px;">??</span>
+    <!-- Cats running right -->
+    <span class="runner" style="animation-duration:8s;  animation-delay:3s;   top:14px;">??</span>
+    <span class="runner" style="animation-duration:10s; animation-delay:0.5s; top:22px;">??</span>
+    <span class="runner" style="animation-duration:7.5s;animation-delay:5s;   top:8px; ">????</span>
+    <!-- Running left (opposite direction) -->
+    <span class="runner left" style="animation-duration:9s;  animation-delay:1.5s; top:14px;">??</span>
+    <span class="runner left" style="animation-duration:7s;  animation-delay:6s;   top:20px;">??</span>
+    <span class="runner left" style="animation-duration:12s; animation-delay:0s;   top:10px;">??</span>
+    <div class="track-label">?? &nbsp; ado??o respons?vel &nbsp; ??</div>
+  </div>
 
   <!-- ========================== SOBRE ========================== -->
   <section id="sobre" class="py-24 bg-slate-50">
